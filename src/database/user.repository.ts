@@ -14,7 +14,7 @@ export class UserRepository {
    * @param data - Dados necessários para criação do usuário (nome, email, username, senha, foto)
    * @returns Usuário criado retornado pelo Prisma
    */
-  async createUser(data: CreateUserDto) {
+  public async createUser(data: CreateUserDto) {
     return prisma.user.create({
       data
     })
@@ -26,7 +26,7 @@ export class UserRepository {
    * @param id - ID do usuário
    * @returns Usuário encontrado ou null se não existir
    */
-  async getUserById(id: string) {
+  public async getUserById(id: string) {
     return prisma.user.findUnique({
       where: { id }
     })
@@ -39,7 +39,7 @@ export class UserRepository {
    * @param data - Dados a serem atualizados (nome, email, username, senha, foto)
    * @returns Usuário atualizado retornado pelo Prisma
    */
-  async updateUser(id: string, data: Partial<CreateUserDto>) {
+  public async updateUser(id: string, data: Partial<CreateUserDto>) {
     return prisma.user.update({
       where: { id },
       data
@@ -52,7 +52,7 @@ export class UserRepository {
    * @param id - ID do usuário a ser desativado
    * @returns Usuário desativado retornado pelo Prisma
    */
-  async deleteUser(id: string) {
+  public async deleteUser(id: string) {
     return prisma.user.update({
       where: { id },
       data: {
