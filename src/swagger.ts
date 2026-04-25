@@ -24,8 +24,54 @@ const doc = {
       name: 'Health',
       description: 'Endpoints relacionados à verificação de saúde da API.',
     },
+    {
+      name: 'Users',
+      description: 'Endpoints relacionados ao gerenciamento de usuários, incluindo registro, login e atualização de perfil.',
+    },
+    {
+      name: 'Auth',
+      description: 'Endpoints relacionados à autenticação, como login e logout.',
+    }
   ],
   components: {
+    User: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'ID do usuário',
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        },
+        name: {
+          type: 'string',
+          description: 'Nome do usuário',
+          example: 'Luara Kerlen'
+        },
+        username: {
+          type: 'string',
+          description: 'Nome de usuário único para login',
+          example: 'luarakerlen'
+        },
+        email: {
+          type: 'string',
+          format: 'email',
+          description: 'Email do usuário',
+          example: 'luara.kerlen@example.com'
+        },
+        createdAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Data e hora de criação do usuário',
+          example: '2024-06-01T12:00:00Z'
+        },
+        updatedAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Data e hora da última atualização do usuário',
+          example: '2024-06-02T15:30:00Z'
+        },
+      }
+    },
     Pagination: {
       type: 'object',
       properties: {
@@ -91,7 +137,7 @@ const doc = {
       properties: {
         success: { type: 'boolean', example: false },
         message: { type: 'string', example: 'Falha de validação: valor duplicado' },
-        details: { type: 'string', example: 'email já existe.' }
+        details: { type: 'string', example: 'email/username já existe.' }
       }
     },
     Error500Response: {
@@ -102,8 +148,127 @@ const doc = {
       }
     },
     '@schemas': {
+      createUserSchema: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            description: 'Nome do usuário',
+            example: 'Luara Kerlen'
+          },
+          username: {
+            type: 'string',
+            description: 'Nome de usuário único para login',
+            example: 'luarakerlen'
+          },
+          email: {
+            type: 'string',
+            format: 'email',
+            description: 'Email do usuário',
+            example: 'luara.kerlen@example.com'
+          },
+          password: {
+            type: 'string',
+            description: 'Senha do usuário',
+            example: 'senha123'
+          },
+          photoUrl: {
+            type: 'string',
+            format: 'uri',
+            description: 'URL da foto de perfil do usuário',
+            example: 'https://example.com/foto.jpg'
+          }
+        },
+        required: ['name', 'username', 'email', 'password']
+      },
+      /*loginSchema: {
+        type: 'object',
+        properties: {
+          email: {
+            type: 'string',
+            format: 'email',
+            description: 'Email do usuário',
+            example: 'joao.silva@example.com'
+          },
+          password: {
+            type: 'string',
+            description: 'Senha do usuário',
+            example: 'senha123'
+          }
+        },
+        required: ['email', 'password']
+      },
+      
+      loginResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Autenticação realizada com sucesso.' },
+          data: {
+            type: 'object',
+            properties: {
+              token: {
+                type: 'string',
+                description: 'Token JWT gerado após login bem-sucedido',
+                example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjNlNDU2Ny1lODliLTEyZDMtYTQ1Ni00MjY2MTQxNzQwMDAiLCJpYXQiOjE2ODg4ODg4MDAsImV4cCI6MTY4ODg5MjQwMH0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+              },
+              user: {
+                $ref: '#/components/User'
+              }
+            }
+          }
+        }
+      },*/
+      createUserResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Usuário criado com sucesso.' },
+          data: {
+            $ref: '#/components/User'
+          }
+        }
+      },
+      apiHealthResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'A API está saudável.' }
+        }
+      }
     },
     parameters: {
+      taskId: {
+        name: 'id',
+        in: 'path',
+        description: 'ID da tarefa',
+        required: true,
+        schema: {
+          type: 'string',
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        }
+      },
+      taskTitle: {
+        name: 'title',
+        in: 'query',
+        description: 'Filtro por título da tarefa',
+        required: false,
+        schema: {
+          type: 'string',
+          example: 'Comprar leite'
+        }
+      },
+      taskStatus: {
+        name: 'status',
+        in: 'query',
+        description: 'Filtro por status da tarefa',
+        required: false,
+        schema: {
+          type: 'string',
+          enum: ['pending', 'in_progress', 'completed'],
+          example: 'pending'
+        }
+      },
       page: {
         name: 'page',
         in: 'query',
@@ -131,7 +296,7 @@ const doc = {
 };
 
 const outputFile = './swagger.json';
-const routes = ['./routes/health.routes.ts'];
+const routes = ['./routes/health.routes.ts', './routes/users.routes.ts'];
 
 /* NOTE: If you are using the express Router, you must pass in the 'routes' only the 
 root file where the route starts, such as index.js, app.js, routes.js, etc ... */

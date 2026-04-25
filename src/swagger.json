@@ -14,6 +14,14 @@
     {
       "name": "Health",
       "description": "Endpoints relacionados à verificação de saúde da API."
+    },
+    {
+      "name": "Users",
+      "description": "Endpoints relacionados ao gerenciamento de usuários, incluindo registro, login e atualização de perfil."
+    },
+    {
+      "name": "Auth",
+      "description": "Endpoints relacionados à autenticação, como login e logout."
     }
   ],
   "paths": {
@@ -37,9 +45,109 @@
         },
         "security": []
       }
+    },
+    "/users": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "description": "Endpoint para criar um novo usuário. O corpo da requisição deve conter os campos name, username, email, password e opcionalmente photoUrl. O campo username deve ser único e o campo email deve estar em formato válido. A senha deve ter pelo menos 6 caracteres. O endpoint retorna os dados do usuário criado, incluindo seu ID gerado.",
+        "responses": {
+          "201": {
+            "description": "Usuário criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/createUserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, com detalhes dos erros de validação.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error400Response"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflito, email/username já existe.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error409Response"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error500Response"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "description": "Dados para criar um novo usuário",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createUserSchema"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID do usuário",
+          "example": "123e4567-e89b-12d3-a456-426614174000"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome do usuário",
+          "example": "Luara Kerlen"
+        },
+        "username": {
+          "type": "string",
+          "description": "Nome de usuário único para login",
+          "example": "luarakerlen"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Email do usuário",
+          "example": "luara.kerlen@example.com"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Data e hora de criação do usuário",
+          "example": "2024-06-01T12:00:00Z"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Data e hora da última atualização do usuário",
+          "example": "2024-06-02T15:30:00Z"
+        }
+      }
+    },
     "Pagination": {
       "type": "object",
       "properties": {
@@ -143,7 +251,7 @@
         },
         "details": {
           "type": "string",
-          "example": "email já existe."
+          "example": "email/username já existe."
         }
       }
     },
@@ -161,6 +269,41 @@
       }
     },
     "parameters": {
+      "taskId": {
+        "name": "id",
+        "in": "path",
+        "description": "ID da tarefa",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "example": "123e4567-e89b-12d3-a456-426614174000"
+        }
+      },
+      "taskTitle": {
+        "name": "title",
+        "in": "query",
+        "description": "Filtro por título da tarefa",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "example": "Comprar leite"
+        }
+      },
+      "taskStatus": {
+        "name": "status",
+        "in": "query",
+        "description": "Filtro por status da tarefa",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "in_progress",
+            "completed"
+          ],
+          "example": "pending"
+        }
+      },
       "page": {
         "name": "page",
         "in": "query",
@@ -184,7 +327,75 @@
         }
       }
     },
-    "schemas": {},
+    "schemas": {
+      "createUserSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Nome do usuário",
+            "example": "Luara Kerlen"
+          },
+          "username": {
+            "type": "string",
+            "description": "Nome de usuário único para login",
+            "example": "luarakerlen"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email do usuário",
+            "example": "luara.kerlen@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "Senha do usuário",
+            "example": "senha123"
+          },
+          "photoUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL da foto de perfil do usuário",
+            "example": "https://example.com/foto.jpg"
+          }
+        },
+        "required": [
+          "name",
+          "username",
+          "email",
+          "password"
+        ]
+      },
+      "createUserResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Usuário criado com sucesso."
+          },
+          "data": {
+            "$ref": "#/components/User"
+          }
+        }
+      },
+      "apiHealthResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "A API está saudável."
+          }
+        }
+      }
+    },
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
