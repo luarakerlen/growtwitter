@@ -6,3 +6,59 @@ datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
+
+enum TweetType {
+    POST
+    REPLY
+}
+
+model User {
+    id       String @id @default(uuid()) @db.Uuid
+    name     String @db.VarChar(200)
+    username String @unique @db.VarChar(200)
+    email    String @unique @db.VarChar(200)
+    password String @db.VarChar(200)
+    photoUrl String @map("photo_url") @db.VarChar(500)
+
+    tweets Tweet[]
+    likes  Like[]
+
+    isActive  Boolean  @default(true) @map("is_active")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+    @@map("users")
+}
+
+model Tweet {
+    id      String    @id @default(uuid()) @db.Uuid
+    content String
+    type    TweetType
+    likes   Like[]
+    replies Tweet[]   @relation("TweetReplies")
+
+    authorId String @map("author_id") @db.Uuid
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+    parentId String? @map("parent_id") @db.Uuid
+    parent   Tweet?  @relation("TweetReplies", fields: [parentId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+    @@map("tweets")
+}
+
+model Like {
+    userId  String @map("user_id") @db.Uuid
+    tweetId String @map("tweet_id") @db.Uuid
+
+    user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+    tweet Tweet @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+    @@id([userId, tweetId])
+    @@map("likes")
+}
