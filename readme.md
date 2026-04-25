@@ -41,9 +41,9 @@ Crie um arquivo `.env` na raiz do projeto com base no `.env-example`:
 PORT=3030
 
 # URL de conexão com o banco de dados
-# Para Docker: postgresql://postgres:postgres@db:5432/meubanco?schema=public
+# Para Docker: postgresql://postgres:postgres@db:5432/meubancogrowtweeter?schema=public
 # Para local/cloud: postgresql://usuario:senha@host:5432/banco
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/meubanco?schema=public"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/meubancogrowtweeter?schema=public"
 
 # Chave secreta para assinar tokens JWT (use uma string longa e aleatória)
 JWT_SECRET="sua_chave_secreta_muito_segura_aqui"
