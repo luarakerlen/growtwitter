@@ -181,14 +181,13 @@ const doc = {
         },
         required: ['name', 'username', 'email', 'password']
       },
-      /*loginSchema: {
+      loginSchema: {
         type: 'object',
         properties: {
-          email: {
+          emailOrUsername: {
             type: 'string',
-            format: 'email',
-            description: 'Email do usuário',
-            example: 'joao.silva@example.com'
+            description: 'Email ou nome de usuário do usuário',
+            example: 'luara.kerlen@example.com'
           },
           password: {
             type: 'string',
@@ -196,9 +195,8 @@ const doc = {
             example: 'senha123'
           }
         },
-        required: ['email', 'password']
+        required: ['emailOrUsername', 'password']
       },
-      
       loginResponse: {
         type: 'object',
         properties: {
@@ -218,7 +216,7 @@ const doc = {
             }
           }
         }
-      },*/
+      },
       createUserResponse: {
         type: 'object',
         properties: {
@@ -296,7 +294,7 @@ const doc = {
 };
 
 const outputFile = './swagger.json';
-const routes = ['./routes/health.routes.ts', './routes/users.routes.ts'];
+const routes = ['./routes/health.routes.ts', './routes/users.routes.ts', './routes/auth.routes.ts'];
 
 /* NOTE: If you are using the express Router, you must pass in the 'routes' only the 
 root file where the route starts, such as index.js, app.js, routes.js, etc ... */

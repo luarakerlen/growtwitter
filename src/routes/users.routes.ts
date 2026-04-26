@@ -10,7 +10,6 @@ import { userController } from "../container";
  * - POST /user:id: Atualizar informações de um usuário específico (requer autenticação).
  * - DELETE /user:id: Excluir um usuário específico (requer autenticação).
  */
-
 export class UsersRoutes {
   public static bind() {
     const router = express.Router();
@@ -77,13 +76,13 @@ export class UsersRoutes {
             }
           }
       */
-      // dataValidation([
-      //   body("name").isString().withMessage("Nome inválido").isLength({ min: 1 }).withMessage("O nome é obrigatório"),
-      //   body("username").isString().withMessage("Nome de usuário inválido").isLength({ min: 3 }).withMessage("O nome de usuário deve ter pelo menos 3 caracteres"),
-      //   body("email").isEmail().withMessage("Formato de email inválido"),
-      //   body("password").isString().isLength({ min: 6 }).withMessage("A senha deve ter pelo menos 6 caracteres"),
-      //   body("photoUrl").optional().isURL().withMessage("URL da foto inválida"),
-      // ]),
+      dataValidation([
+        body("name").isString().withMessage("Nome inválido").isLength({ min: 1 }).withMessage("O nome é obrigatório"),
+        body("username").isString().withMessage("Nome de usuário inválido").isLength({ min: 3 }).withMessage("O nome de usuário deve ter pelo menos 3 caracteres"),
+        body("email").isEmail().withMessage("Formato de email inválido"),
+        body("password").isString().isLength({ min: 6 }).withMessage("A senha deve ter pelo menos 6 caracteres"),
+        body("photoUrl").optional().isURL().withMessage("URL da foto inválida"),
+      ]),
       userController.createUser
     )
 

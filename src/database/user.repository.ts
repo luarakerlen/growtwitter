@@ -1,5 +1,5 @@
-import { CreateUserDto } from "../dtos";
 import prisma from "./prisma.repository";
+import { CreateUserDto, GetUserByEmailOrUsernameDto } from "../dtos";
 
 /**
  * Repository responsável por todas as operações de banco relacionadas a Usuário.
@@ -17,6 +17,19 @@ export class UserRepository {
   public async createUser(data: CreateUserDto) {
     return prisma.user.create({
       data
+    })
+  }
+
+  /**
+   * Busca um usuário pelo seu email ou username.
+   * 
+   * @param email - Email do usuário
+   * @param username - Nome de usuário
+   * @returns Usuário encontrado ou null se não existir
+   */
+  public async getUserByEmailOrUsername({ email, username }: GetUserByEmailOrUsernameDto) {
+    return prisma.user.findUnique({
+      where: email ? { email } : { username }
     })
   }
 

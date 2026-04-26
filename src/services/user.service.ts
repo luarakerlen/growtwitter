@@ -1,9 +1,10 @@
 import { User as UserEntity } from '@prisma/client';
-import { hashSync } from 'bcryptjs';
+import { hashSync, compareSync } from 'bcryptjs';
 import { UserRepository } from "../database";
-import { CreateUserDto } from "../dtos";
+import { CreateUserDto, LoginUserDto } from "../dtos";
 import { HTTPError } from "../utils";
 import { User } from '../models';
+import { AuthService } from './auth.service';
 
 /**
  * Service responsável por gerenciar as operações relacionadas aos usuários,
@@ -30,6 +31,34 @@ export class UserService {
     });
 
     return this.mapToModel(createdUser);
+  }
+
+  /**
+   * Realiza o login de um usuário.
+   * @param params - Parâmetros para buscar o usuário (email ou username e senha)
+   * @returns Token de autenticação e informações do usuário logado ou um erro caso o login falhe
+   * @throws HTTPError 401 se o usuário não for encontrado
+   */
+  public async login({ emailOrUsername, password }: LoginUserDto) {
+    const loginParams = emailOrUsername?.includes('@')
+      ? { email: emailOrUsername }
+      : { username: emailOrUsername };
+
+    const user = await this.userRepository.getUserByEmailOrUsername(loginParams);
+    if (!user || !compareSync(password, user?.password)) {
+      throw new HTTPError(401, "Login ou senha inválidos.")
+    };
+
+    const token = new AuthService().createToken({
+      id: user.id,
+      email: user.email,
+      username: user.username,
+    })
+
+    return {
+      token,
+      user: this.mapToModel(user)
+    };
   }
 
   /**

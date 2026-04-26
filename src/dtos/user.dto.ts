@@ -19,3 +19,12 @@ export interface CreateUserDto {
   username: string;
   photoUrl?: string;
 }
+
+export interface LoginUserDto {
+  emailOrUsername: string;
+  password: string;
+}
+
+export type GetUserByEmailOrUsernameDto =
+  | { email: string; username?: never }
+  | { email?: never; username: string }

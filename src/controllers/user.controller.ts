@@ -24,4 +24,20 @@ export class UsersController {
       onError(error, res);
     }
   }
+
+  public login = async (req: Request, res: Response) => {
+    try {
+      const data = req.body;
+      const result = await this.userService.login(data);
+
+      return HTTPResponse({
+        res,
+        statusCode: 200,
+        message: "Login realizado com sucesso!",
+        data: result,
+      })
+    } catch (error) {
+      onError(error, res);
+    }
+  }
 }
