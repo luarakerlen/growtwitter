@@ -223,7 +223,7 @@ const doc = {
         type: 'object',
         properties: {
           success: { type: 'boolean', example: true },
-          message: { type: 'string', example: 'Usuário criado com sucesso.' },
+          message: { type: 'string', example: 'Usuário criado com sucesso!' },
           data: {
             $ref: '#/components/User'
           }

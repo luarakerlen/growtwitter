@@ -9,7 +9,7 @@ import { UserService } from "../services";
 export class UsersController {
   constructor(private userService: UserService) { }
 
-  public async createUser(req: Request, res: Response) {
+  public createUser = async (req: Request, res: Response) => {
     try {
       const data = req.body;
       const result = await this.userService.createUser(data);
@@ -17,7 +17,7 @@ export class UsersController {
       return HTTPResponse({
         res,
         statusCode: 201,
-        message: "Usuário criado com sucesso",
+        message: "Usuário criado com sucesso!",
         data: result,
       })
     } catch (error) {

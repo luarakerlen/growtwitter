@@ -25,9 +25,9 @@ export class User {
       name: this.name,
       email: this.email,
       username: this.username,
-      tweets: this.tweets,
-      followers: this.followers,
-      following: this.following,
+      // tweets: this.tweets,
+      // followers: this.followers,
+      // following: this.following,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };

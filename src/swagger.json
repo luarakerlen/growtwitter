@@ -375,7 +375,7 @@
           },
           "message": {
             "type": "string",
-            "example": "Usuário criado com sucesso."
+            "example": "Usuário criado com sucesso!"
           },
           "data": {
             "$ref": "#/components/User"

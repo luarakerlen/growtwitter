@@ -26,11 +26,14 @@ export class UserRepository {
    * @param id - ID do usuário
    * @returns Usuário encontrado ou null se não existir
    */
-  public async getUserById(id: string) {
-    return prisma.user.findUnique({
-      where: { id }
-    })
-  }
+  // public async getUserById(id: string) {
+  //   return prisma.user.findUnique({
+  //     where: { id, isActive: true },
+  //     include: {
+  //       tweets: true,
+  //     }
+  //   })
+  // }
 
   /**
    * Atualiza um usuário existente.
@@ -39,12 +42,12 @@ export class UserRepository {
    * @param data - Dados a serem atualizados (nome, email, username, senha, foto)
    * @returns Usuário atualizado retornado pelo Prisma
    */
-  public async updateUser(id: string, data: Partial<CreateUserDto>) {
-    return prisma.user.update({
-      where: { id },
-      data
-    })
-  }
+  // public async updateUser(id: string, data: Partial<CreateUserDto>) {
+  //   return prisma.user.update({
+  //     where: { id, isActive: true },
+  //     data
+  //   })
+  // }
 
   /**
    * Desativa um usuário no banco de dados, marcando-o como inativo e registrando a data de exclusão.
@@ -52,13 +55,13 @@ export class UserRepository {
    * @param id - ID do usuário a ser desativado
    * @returns Usuário desativado retornado pelo Prisma
    */
-  public async deleteUser(id: string) {
-    return prisma.user.update({
-      where: { id },
-      data: {
-        isActive: false,
-        deletedAt: new Date()
-      }
-    })
-  }
+  // public async deleteUser(id: string) {
+  //   return prisma.user.update({
+  //     where: { id, isActive: true },
+  //     data: {
+  //       isActive: false,
+  //       deletedAt: new Date()
+  //     }
+  //   })
+  // }
 }
