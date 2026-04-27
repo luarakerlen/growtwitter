@@ -8,14 +8,17 @@ export class User {
     private username: string,
     private createdAt: Date,
     private updatedAt: Date,
-    private tweets?: TweetDto[],
-    private followers?: UserDto[],
-    private following?: UserDto[],
-    private relation?: any
+    private tweets?: Partial<TweetDto>[],
+    private followers?: Partial<UserDto>[],
   ) { }
 
-  public withRelation(relation: any) {
-    this.relation = relation;
+  public withTweets(tweets: Partial<TweetDto>[]) {
+    this.tweets = tweets;
+    return this;
+  }
+
+  public withFollowers(followers: Partial<UserDto>[]) {
+    this.followers = followers;
     return this;
   }
 
@@ -25,9 +28,8 @@ export class User {
       name: this.name,
       email: this.email,
       username: this.username,
-      // tweets: this.tweets,
-      // followers: this.followers,
-      // following: this.following,
+      tweets: this.tweets,
+      followers: this.followers,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };

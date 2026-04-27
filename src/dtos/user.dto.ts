@@ -5,9 +5,9 @@ export interface UserDto {
   name: string;
   email: string;
   username: string;
-  tweets?: TweetDto[];
-  followers?: UserDto[];
-  following?: UserDto[];
+  tweets?: Partial<TweetDto>[];
+  followers?: Partial<UserDto>[];
+  following?: Partial<UserDto>[];
   createdAt: Date;
   updatedAt: Date;
 }
