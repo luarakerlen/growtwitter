@@ -236,6 +236,40 @@ const doc = {
         },
         required: ['emailOrUsername', 'password']
       },
+      updateUserSchema: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            description: 'Nome do usuário',
+            example: 'Luara Kerlen'
+          },
+          username: {
+            type: 'string',
+            description: 'Nome de usuário único para login',
+            example: 'luarakerlen'
+          },
+          email: {
+            type: 'string',
+            format: 'email',
+            description: 'Email do usuário',
+            example: 'luara.kerlen@example.com'
+          },
+          password: {
+            type: 'string',
+            description: 'Senha do usuário',
+            example: 'senha123'
+          },
+          photoUrl: {
+            type: 'string',
+            format: 'uri',
+            description: 'URL da foto de perfil do usuário',
+            example: 'https://example.com/foto.jpg'
+          }
+        },
+        required: []
+      },
+      // Responses
       createUserResponse: {
         type: 'object',
         properties: {
@@ -263,6 +297,26 @@ const doc = {
                 $ref: '#/components/User'
               }
             }
+          }
+        }
+      },
+      updateUserResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Usuário atualizado com sucesso!' },
+          data: {
+            $ref: '#/components/User'
+          }
+        }
+      },
+      deleteUserResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Usuário deletado com sucesso!' },
+          data: {
+            $ref: '#/components/User'
           }
         }
       },
