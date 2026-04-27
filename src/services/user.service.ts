@@ -1,10 +1,10 @@
-import { User as UserEntity } from '@prisma/client';
 import { hashSync, compareSync } from 'bcryptjs';
 import { UserRepository } from "../database";
 import { CreateUserDto, LoginUserDto } from "../dtos";
 import { HTTPError } from "../utils";
 import { User } from '../models';
 import { AuthService } from './auth.service';
+import { UserPartialRelations } from '../config';
 
 /**
  * Service responsável por gerenciar as operações relacionadas aos usuários,
@@ -67,13 +67,13 @@ export class UserService {
    * @returns Usuário encontrado ou null se não existir
    * @throws HTTPError 404 se o usuário não for encontrado
    */
-  // public async getUserById(id: string) {
-  //   const user = await this.userRepository.getUserById(id);
+  public async getUserById(id: string) {
+    const user = await this.userRepository.getUserById(id);
 
-  //   if (!user) throw new HTTPError(404, "Usuário não encontrado");
+    if (!user) throw new HTTPError(404, "Usuário não encontrado");
 
-  //   return this.mapToModel(user);
-  // }
+    return this.mapToModel(user);
+  }
 
   /**
    * Atualiza um usuário existente.
@@ -110,36 +110,21 @@ export class UserService {
    * @param entity - Usuário vindo do Prisma
    * @returns Instância de User (modelo da aplicação)
    */
-  private mapToModel(entity: UserEntity): User {
-    return new User(
+  private mapToModel(entity: UserPartialRelations, withRelations?: boolean): User {
+    const user = new User(
       entity.id,
       entity.name,
       entity.email,
       entity.username,
       entity.createdAt,
       entity.updatedAt,
-      // entity.tweets?.map(tweet => ({
-      //   id: tweet.id,
-      //   content: tweet.content,
-      //   createdAt: tweet.createdAt,
-      //   updatedAt: tweet.updatedAt,
-      // })),
-      // entity.followers?.map(follower => ({
-      //   id: follower.id,
-      //   name: follower.name,
-      //   email: follower.email,
-      //   username: follower.username,
-      //   createdAt: follower.createdAt,
-      //   updatedAt: follower.updatedAt,
-      // })),
-      // entity.following?.map(following => ({
-      //   id: following.id,
-      //   name: following.name,
-      //   email: following.email,
-      //   username: following.username,
-      //   createdAt: following.createdAt,
-      //   updatedAt: following.updatedAt,
-      // }))
     );
+
+    if (withRelations) {
+      user.withTweets(entity.tweets || [])
+      user.withFollowers(entity.followers?.map(f => f.follower) || []);
+    }
+
+    return user;
   }
 }

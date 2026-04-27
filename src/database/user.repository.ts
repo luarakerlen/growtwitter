@@ -1,5 +1,6 @@
 import prisma from "./prisma.repository";
 import { CreateUserDto, GetUserByEmailOrUsernameDto } from "../dtos";
+import { userWithRelations } from "../config";
 
 /**
  * Repository responsável por todas as operações de banco relacionadas a Usuário.
@@ -37,16 +38,14 @@ export class UserRepository {
    * Busca um usuário pelo seu ID.
    * 
    * @param id - ID do usuário
-   * @returns Usuário encontrado ou null se não existir
+   * @returns Usuário encontrado incluindo tweets e seguidores ou null se não existir
    */
-  // public async getUserById(id: string) {
-  //   return prisma.user.findUnique({
-  //     where: { id, isActive: true },
-  //     include: {
-  //       tweets: true,
-  //     }
-  //   })
-  // }
+  public async getUserById(id: string) {
+    return prisma.user.findUnique({
+      where: { id, isActive: true },
+      ...userWithRelations
+    })
+  }
 
   /**
    * Atualiza um usuário existente.

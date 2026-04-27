@@ -40,4 +40,20 @@ export class UsersController {
       onError(error, res);
     }
   }
+
+  public getUserById = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const result = await this.userService.getUserById(String(id));
+
+      return HTTPResponse({
+        res,
+        statusCode: 200,
+        message: "Usuário encontrado com sucesso!",
+        data: result,
+      })
+    } catch (error) {
+      onError(error, res);
+    }
+  }
 }
