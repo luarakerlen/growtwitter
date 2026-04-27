@@ -170,8 +170,80 @@
         }
       }
     },
-    "/user": {
-      "post": {
+    "/users/{id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "description": "Endpoint para obter informações de um usuário específico. Requer autenticação. O ID do usuário deve ser passado como parâmetro na URL. O endpoint retorna os dados do usuário, incluindo seu ID, nome, nome de usuário, email, URL da foto (se disponível), tweets e seguidores.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuário encontrado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getUserByIdResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, com detalhes dos erros de validação.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error400Response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado, token de autenticação ausente ou inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/Error401TokenAusenteResponse"
+                    },
+                    {
+                      "$ref": "#/components/Error401TokenInvalidoResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário não encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error404Response"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error500Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/me": {
+      "put": {
         "tags": [
           "Users"
         ],
@@ -269,78 +341,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/deleteUserResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Não autorizado, token de autenticação ausente ou inválido.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/Error401TokenAusenteResponse"
-                    },
-                    {
-                      "$ref": "#/components/Error401TokenInvalidoResponse"
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Usuário não encontrado.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/Error404Response"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Erro interno do servidor.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/Error500Response"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/user/{id}": {
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "description": "Endpoint para obter informações de um usuário específico. Requer autenticação. O ID do usuário deve ser passado como parâmetro na URL. O endpoint retorna os dados do usuário, incluindo seu ID, nome, nome de usuário, email, URL da foto (se disponível), tweets e seguidores.",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/userId"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Usuário encontrado com sucesso",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/getUserByIdResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Requisição inválida, com detalhes dos erros de validação.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/Error400Response"
                 }
               }
             }

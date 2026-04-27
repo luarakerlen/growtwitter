@@ -85,6 +85,10 @@ export class UserService {
   public async updateUser(id: string, data: Partial<CreateUserDto>) {
     const userToBeUpdated = await this.getUserById(id);
 
+    if (!data || Object.keys(data).length === 0) {
+      return userToBeUpdated;
+    }
+
     if (!!data?.password) {
       data.password = hashSync(data.password, 10);
     }

@@ -87,8 +87,82 @@ export class UsersRoutes {
       userController.createUser
     )
 
+    // Qualquer usuário autenticado pode acessar
+    router.get("/users/:id",
+      /*  #swagger.tags = ['Users']
+          #swagger.description = 'Endpoint para obter informações de um usuário específico. Requer autenticação. O ID do usuário deve ser passado como parâmetro na URL. O endpoint retorna os dados do usuário, incluindo seu ID, nome, nome de usuário, email, URL da foto (se disponível), tweets e seguidores.'
+      
+          #swagger.parameters['id'] = {
+            $ref: '#/components/parameters/userId'
+          }
+
+          #swagger.responses[200] = {
+            description: 'Usuário encontrado com sucesso',
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/getUserByIdResponse"
+                }
+              }
+            }
+          }
+
+          #swagger.responses[400] = {
+            description: 'Requisição inválida, com detalhes dos erros de validação.',
+            content: {
+              "application/json": {
+                  schema: {
+                    $ref: '#/components/Error400Response'
+                  }
+              }
+            }
+          }
+
+          #swagger.responses[401] = {
+            description: 'Não autorizado, token de autenticação ausente ou inválido.',
+            content: {
+              "application/json": {
+                schema: {
+                  oneOf: [
+                    { $ref: '#/components/Error401TokenAusenteResponse' },
+                    { $ref: '#/components/Error401TokenInvalidoResponse' }
+                  ]
+                }
+              }
+            }
+          }
+
+          #swagger.responses[404] = {
+            description: 'Usuário não encontrado.',
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: '#/components/Error404Response'
+                }
+              }
+            }
+          }
+
+          #swagger.responses[500] = {
+            description: 'Erro interno do servidor.',
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: '#/components/Error500Response'
+                }
+              }
+            }
+          }
+      */
+      dataValidation([
+        param("id").isUUID().withMessage("ID de usuário inválido"),
+      ]),
+      authMiddleware,
+      userController.getUserById
+    )
+
     // Somente o próprio usuário pode atualizar seus dados
-    router.post("/user",
+    router.put("/users/me",
       /*  #swagger.tags = ['Users']
           #swagger.description = 'Endpoint para atualizar as informações do usuário autenticado. Requer autenticação. O corpo da requisição pode conter os campos name, username, email, password e photoUrl para atualização. O campo username deve ser único e o campo email deve estar em formato válido. A senha deve ter pelo menos 6 caracteres. O endpoint retorna os dados atualizados do usuário.'
 
@@ -185,7 +259,7 @@ export class UsersRoutes {
     )
 
     // Somente o próprio usuário pode excluir sua conta
-    router.delete("/user",
+    router.delete("/users/me",
       /*  #swagger.tags = ['Users']
           #swagger.description = 'Endpoint para excluir a conta do usuário autenticado. Requer autenticação. O endpoint deleta o usuário e retorna uma mensagem de sucesso.'
 
@@ -238,80 +312,6 @@ export class UsersRoutes {
       */
       authMiddleware,
       userController.deleteUser
-    )
-
-    // Qualquer usuário autenticado pode acessar
-    router.get("/user/:id",
-      /*  #swagger.tags = ['Users']
-          #swagger.description = 'Endpoint para obter informações de um usuário específico. Requer autenticação. O ID do usuário deve ser passado como parâmetro na URL. O endpoint retorna os dados do usuário, incluindo seu ID, nome, nome de usuário, email, URL da foto (se disponível), tweets e seguidores.'
-      
-          #swagger.parameters['id'] = {
-            $ref: '#/components/parameters/userId'
-          }
-
-          #swagger.responses[200] = {
-            description: 'Usuário encontrado com sucesso',
-            content: {
-              "application/json": {
-                schema: {
-                  $ref: "#/components/schemas/getUserByIdResponse"
-                }
-              }
-            }
-          }
-
-          #swagger.responses[400] = {
-            description: 'Requisição inválida, com detalhes dos erros de validação.',
-            content: {
-              "application/json": {
-                  schema: {
-                    $ref: '#/components/Error400Response'
-                  }
-              }
-            }
-          }
-
-          #swagger.responses[401] = {
-            description: 'Não autorizado, token de autenticação ausente ou inválido.',
-            content: {
-              "application/json": {
-                schema: {
-                  oneOf: [
-                    { $ref: '#/components/Error401TokenAusenteResponse' },
-                    { $ref: '#/components/Error401TokenInvalidoResponse' }
-                  ]
-                }
-              }
-            }
-          }
-
-          #swagger.responses[404] = {
-            description: 'Usuário não encontrado.',
-            content: {
-              "application/json": {
-                schema: {
-                  $ref: '#/components/Error404Response'
-                }
-              }
-            }
-          }
-
-          #swagger.responses[500] = {
-            description: 'Erro interno do servidor.',
-            content: {
-              "application/json": {
-                schema: {
-                  $ref: '#/components/Error500Response'
-                }
-              }
-            }
-          }
-      */
-      dataValidation([
-        param("id").isUUID().withMessage("ID de usuário inválido"),
-      ]),
-      authMiddleware,
-      userController.getUserById
     )
 
     return router;
