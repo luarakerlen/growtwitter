@@ -1,4 +1,4 @@
-import { sign, SignOptions } from "jsonwebtoken";
+import { sign, SignOptions, verify } from "jsonwebtoken";
 import { envs } from "../envs";
 import { HTTPError } from "../utils";
 
@@ -36,5 +36,27 @@ export class AuthService {
     return token;
   }
 
-  public validateToken() { }
+  /**
+   * Verifica a validade de um token JWT e retorna o payload do usuário se o token for válido.
+   * @param token - Token JWT a ser validado
+   * @returns Payload do usuário se o token for válido, caso contrário, retorna null
+   */
+  public validateToken(token: string): JwtUserPayload | null {
+    try {
+      if (!envs.JWT_SECRET) {
+        throw new HTTPError(500, "JWT_SECRET não configurado. Verifique as variáveis de ambiente.")
+      }
+
+      console.log("Token recebido:", token);
+      console.log("JWT_SECRET utilizado:", envs.JWT_SECRET);
+
+      const validToken = verify(token, envs.JWT_SECRET)
+      console.log("Token validado:", validToken);
+
+      return validToken as JwtUserPayload;
+    } catch (error) {
+      console.log("Token inválido:", error);
+      return null;
+    }
+  }
 }
