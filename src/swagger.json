@@ -16,12 +16,12 @@
       "description": "Endpoints relacionados à verificação de saúde da API."
     },
     {
-      "name": "Users",
-      "description": "Endpoints relacionados ao gerenciamento de usuários, incluindo registro, login e atualização de perfil."
-    },
-    {
       "name": "Auth",
       "description": "Endpoints relacionados à autenticação, como login e logout."
+    },
+    {
+      "name": "Users",
+      "description": "Endpoints relacionados ao gerenciamento de usuários, incluindo registro, login e atualização de perfil."
     }
   ],
   "paths": {
@@ -44,6 +44,68 @@
           }
         },
         "security": []
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "description": "Endpoint para autenticar um usuário. O corpo da requisição deve conter os campos email e password. O endpoint retorna um token JWT em caso de sucesso.",
+        "responses": {
+          "200": {
+            "description": "Autenticação bem-sucedida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/loginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, com detalhes dos erros de validação.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error400Response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciais inválidas, como email ou senha incorretos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error401CredentialsResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error500Response"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "description": "Dados para autenticar um usuário",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/loginSchema"
+              }
+            }
+          }
+        }
       }
     },
     "/users": {
@@ -108,19 +170,24 @@
         }
       }
     },
-    "/auth/login": {
-      "post": {
+    "/user/{id}": {
+      "get": {
         "tags": [
-          "Auth"
+          "Users"
         ],
-        "description": "Endpoint para autenticar um usuário. O corpo da requisição deve conter os campos email e password. O endpoint retorna um token JWT em caso de sucesso.",
+        "description": "Endpoint para obter informações de um usuário específico. Requer autenticação. O ID do usuário deve ser passado como parâmetro na URL. O endpoint retorna os dados do usuário, incluindo seu ID, nome, nome de usuário, email, URL da foto (se disponível), tweets e seguidores.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Autenticação bem-sucedida",
+            "description": "Usuário encontrado com sucesso",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/loginResponse"
+                  "$ref": "#/components/schemas/getUserByIdResponse"
                 }
               }
             }
@@ -136,11 +203,28 @@
             }
           },
           "401": {
-            "description": "Credenciais inválidas, como email ou senha incorretos.",
+            "description": "Não autorizado, token de autenticação ausente ou inválido.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/Error401CredentialsResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/Error401TokenAusenteResponse"
+                    },
+                    {
+                      "$ref": "#/components/Error401TokenInvalidoResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário não encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error404Response"
                 }
               }
             }
@@ -155,23 +239,37 @@
               }
             }
           }
-        },
-        "security": [],
-        "requestBody": {
-          "description": "Dados para autenticar um usuário",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/loginSchema"
-              }
-            }
-          }
         }
       }
     }
   },
   "components": {
+    "Tweet": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID do tweet",
+          "example": "123e4567-e89b-12d3-a456-426614174000"
+        },
+        "content": {
+          "type": "string",
+          "description": "Conteúdo do tweet",
+          "example": "Este é um tweet de exemplo."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Data e hora de criação do tweet",
+          "example": "2024-06-01T12:00:00Z"
+        },
+        "userId": {
+          "type": "string",
+          "description": "ID do usuário que criou o tweet",
+          "example": "72b29c86-3525-4ce3-84c0-c76243b090c3"
+        }
+      }
+    },
     "User": {
       "type": "object",
       "properties": {
@@ -195,6 +293,19 @@
           "format": "email",
           "description": "Email do usuário",
           "example": "luara.kerlen@example.com"
+        },
+        "photoUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL da foto de perfil do usuário",
+          "example": "https://example.com/foto.jpg"
+        },
+        "tweets": {
+          "type": "array",
+          "description": "Lista de tweets criados pelo usuário",
+          "items": {
+            "$ref": "#/components/Tweet"
+          }
         },
         "createdAt": {
           "type": "string",
@@ -261,19 +372,6 @@
         }
       }
     },
-    "Error401TokenInvalidoResponse": {
-      "type": "object",
-      "properties": {
-        "success": {
-          "type": "boolean",
-          "example": false
-        },
-        "message": {
-          "type": "string",
-          "example": "Token inválido ou expirado"
-        }
-      }
-    },
     "Error401TokenAusenteResponse": {
       "type": "object",
       "properties": {
@@ -283,7 +381,20 @@
         },
         "message": {
           "type": "string",
-          "example": "Token não fornecido"
+          "example": "Token de autenticação ausente. Por favor, forneça um token válido no cabeçalho Authorization."
+        }
+      }
+    },
+    "Error401TokenInvalidoResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "example": false
+        },
+        "message": {
+          "type": "string",
+          "example": "Token de autenticação inválido ou expirado. Por favor, forneça um token válido."
         }
       }
     },
@@ -331,14 +442,15 @@
       }
     },
     "parameters": {
-      "taskId": {
+      "userId": {
         "name": "id",
         "in": "path",
-        "description": "ID da tarefa",
+        "description": "ID do usuário",
         "required": true,
         "schema": {
           "type": "string",
-          "example": "123e4567-e89b-12d3-a456-426614174000"
+          "format": "uuid",
+          "example": "72b29c86-3525-4ce3-84c0-c76243b090c3"
         }
       },
       "taskTitle": {
@@ -447,6 +559,22 @@
           "password"
         ]
       },
+      "createUserResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Usuário criado com sucesso!"
+          },
+          "data": {
+            "$ref": "#/components/User"
+          }
+        }
+      },
       "loginResponse": {
         "type": "object",
         "properties": {
@@ -473,7 +601,7 @@
           }
         }
       },
-      "createUserResponse": {
+      "getUserByIdResponse": {
         "type": "object",
         "properties": {
           "success": {
@@ -482,7 +610,7 @@
           },
           "message": {
             "type": "string",
-            "example": "Usuário criado com sucesso!"
+            "example": "Usuário encontrado com sucesso!"
           },
           "data": {
             "$ref": "#/components/User"

@@ -25,15 +25,41 @@ const doc = {
       description: 'Endpoints relacionados à verificação de saúde da API.',
     },
     {
-      name: 'Users',
-      description: 'Endpoints relacionados ao gerenciamento de usuários, incluindo registro, login e atualização de perfil.',
-    },
-    {
       name: 'Auth',
       description: 'Endpoints relacionados à autenticação, como login e logout.',
+    },
+    {
+      name: 'Users',
+      description: 'Endpoints relacionados ao gerenciamento de usuários, incluindo registro, login e atualização de perfil.',
     }
   ],
   components: {
+    Tweet: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'ID do tweet',
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        },
+        content: {
+          type: 'string',
+          description: 'Conteúdo do tweet',
+          example: 'Este é um tweet de exemplo.'
+        },
+        createdAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Data e hora de criação do tweet',
+          example: '2024-06-01T12:00:00Z'
+        },
+        userId: {
+          type: 'string',
+          description: 'ID do usuário que criou o tweet',
+          example: '72b29c86-3525-4ce3-84c0-c76243b090c3'
+        }
+      }
+    },
     User: {
       type: 'object',
       properties: {
@@ -57,6 +83,19 @@ const doc = {
           format: 'email',
           description: 'Email do usuário',
           example: 'luara.kerlen@example.com'
+        },
+        photoUrl: {
+          type: 'string',
+          format: 'uri',
+          description: 'URL da foto de perfil do usuário',
+          example: 'https://example.com/foto.jpg'
+        },
+        tweets: {
+          type: 'array',
+          description: 'Lista de tweets criados pelo usuário',
+          items: {
+            $ref: '#/components/Tweet'
+          }
         },
         createdAt: {
           type: 'string',
@@ -111,18 +150,18 @@ const doc = {
         message: { type: 'string', example: 'E-mail ou senha inválidos' }
       }
     },
-    Error401TokenInvalidoResponse: {
-      type: 'object',
-      properties: {
-        success: { type: 'boolean', example: false },
-        message: { type: 'string', example: 'Token inválido ou expirado' }
-      }
-    },
     Error401TokenAusenteResponse: {
       type: 'object',
       properties: {
         success: { type: 'boolean', example: false },
-        message: { type: 'string', example: 'Token não fornecido' }
+        message: { type: 'string', example: 'Token de autenticação ausente. Por favor, forneça um token válido no cabeçalho Authorization.' }
+      }
+    },
+    Error401TokenInvalidoResponse: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: false },
+        message: { type: 'string', example: 'Token de autenticação inválido ou expirado. Por favor, forneça um token válido.' }
       }
     },
     Error404Response: {
@@ -197,6 +236,16 @@ const doc = {
         },
         required: ['emailOrUsername', 'password']
       },
+      createUserResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Usuário criado com sucesso!' },
+          data: {
+            $ref: '#/components/User'
+          }
+        }
+      },
       loginResponse: {
         type: 'object',
         properties: {
@@ -217,11 +266,11 @@ const doc = {
           }
         }
       },
-      createUserResponse: {
+      getUserByIdResponse: {
         type: 'object',
         properties: {
           success: { type: 'boolean', example: true },
-          message: { type: 'string', example: 'Usuário criado com sucesso!' },
+          message: { type: 'string', example: 'Usuário encontrado com sucesso!' },
           data: {
             $ref: '#/components/User'
           }
@@ -236,14 +285,15 @@ const doc = {
       }
     },
     parameters: {
-      taskId: {
+      userId: {
         name: 'id',
         in: 'path',
-        description: 'ID da tarefa',
+        description: 'ID do usuário',
         required: true,
         schema: {
           type: 'string',
-          example: '123e4567-e89b-12d3-a456-426614174000'
+          format: 'uuid',
+          example: '72b29c86-3525-4ce3-84c0-c76243b090c3'
         }
       },
       taskTitle: {
@@ -290,11 +340,11 @@ const doc = {
         }
       }
     }
-  }
+  },
 };
 
 const outputFile = './swagger.json';
-const routes = ['./routes/health.routes.ts', './routes/users.routes.ts', './routes/auth.routes.ts'];
+const routes = ['./routes/health.routes.ts', './routes/auth.routes.ts', './routes/users.routes.ts'];
 
 /* NOTE: If you are using the express Router, you must pass in the 'routes' only the 
 root file where the route starts, such as index.js, app.js, routes.js, etc ... */
