@@ -82,13 +82,17 @@ export class UserService {
    * @returns Usuário atualizado ou um erro caso a atualização falhe
    * @throws HTTPError 404 se o usuário não for encontrado
    */
-  // public async updateUser(id: string, data: Partial<CreateUserDto>) {
-  //   const userToBeUpdated = await this.getUserById(id);
+  public async updateUser(id: string, data: Partial<CreateUserDto>) {
+    const userToBeUpdated = await this.getUserById(id);
 
-  //   const updatedUser = await this.userRepository.updateUser(userToBeUpdated.toJSON().id, data);
+    if (!!data?.password) {
+      data.password = hashSync(data.password, 10);
+    }
 
-  //   return this.mapToModel(updatedUser);
-  // }
+    const updatedUser = await this.userRepository.updateUser(userToBeUpdated.toJSON().id, data);
+
+    return this.mapToModel(updatedUser);
+  }
 
   /**
    * Desativa um usuário no sistema.
@@ -96,19 +100,20 @@ export class UserService {
    * @returns Usuário desativado ou um erro caso a exclusão falhe
    * @throws HTTPError 404 se o usuário não for encontrado
    */
-  // public async deleteUser(id: string) {
-  //   const userToBeDeleted = await this.getUserById(id);
+  public async deleteUser(id: string) {
+    const userToBeDeleted = await this.getUserById(id);
 
-  //   const deletedUser = await this.userRepository.deleteUser(userToBeDeleted.toJSON().id);
+    const deletedUser = await this.userRepository.deleteUser(userToBeDeleted.toJSON().id);
 
-  //   return this.mapToModel(deletedUser);
-  // }
+    return this.mapToModel(deletedUser);
+  }
 
   /**
    * Converte a entidade retornada do banco (Prisma) para o modelo de domínio.
    * 
    * @param entity - Usuário vindo do Prisma
-   * @returns Instância de User (modelo da aplicação)
+   * @param withRelations - Indica se as relações (tweets e seguidores) devem ser incluídas no modelo
+   * @returns Instância de User (modelo da aplicação), com ou sem relações (tweets e seguidores) dependendo do parâmetro withRelations
    */
   private mapToModel(entity: UserPartialRelations, withRelations?: boolean): User {
     const user = new User(

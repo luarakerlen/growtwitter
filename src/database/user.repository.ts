@@ -29,8 +29,12 @@ export class UserRepository {
    * @returns Usuário encontrado ou null se não existir
    */
   public async getUserByEmailOrUsername({ email, username }: GetUserByEmailOrUsernameDto) {
+    const whereClause = email ? { email } : { username }
     return prisma.user.findUnique({
-      where: email ? { email } : { username }
+      where: {
+        isActive: true,
+        ...whereClause
+      }
     })
   }
 
@@ -54,12 +58,12 @@ export class UserRepository {
    * @param data - Dados a serem atualizados (nome, email, username, senha, foto)
    * @returns Usuário atualizado retornado pelo Prisma
    */
-  // public async updateUser(id: string, data: Partial<CreateUserDto>) {
-  //   return prisma.user.update({
-  //     where: { id, isActive: true },
-  //     data
-  //   })
-  // }
+  public async updateUser(id: string, data: Partial<CreateUserDto>) {
+    return prisma.user.update({
+      where: { id, isActive: true },
+      data
+    })
+  }
 
   /**
    * Desativa um usuário no banco de dados, marcando-o como inativo e registrando a data de exclusão.
@@ -67,13 +71,13 @@ export class UserRepository {
    * @param id - ID do usuário a ser desativado
    * @returns Usuário desativado retornado pelo Prisma
    */
-  // public async deleteUser(id: string) {
-  //   return prisma.user.update({
-  //     where: { id, isActive: true },
-  //     data: {
-  //       isActive: false,
-  //       deletedAt: new Date()
-  //     }
-  //   })
-  // }
+  public async deleteUser(id: string) {
+    return prisma.user.update({
+      where: { id, isActive: true },
+      data: {
+        isActive: false,
+        deletedAt: new Date()
+      }
+    })
+  }
 }

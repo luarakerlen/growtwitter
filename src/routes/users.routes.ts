@@ -14,6 +14,7 @@ export class UsersRoutes {
   public static bind() {
     const router = express.Router();
 
+    // Qualquer usuário pode criar uma conta
     router.post("/users",
       /*  #swagger.tags = ['Users']
           #swagger.description = 'Endpoint para criar um novo usuário. O corpo da requisição deve conter os campos name, username, email, password e opcionalmente photoUrl. O campo username deve ser único e o campo email deve estar em formato válido. A senha deve ter pelo menos 6 caracteres. O endpoint retorna os dados do usuário criado, incluindo seu ID gerado.'
@@ -84,6 +85,159 @@ export class UsersRoutes {
         body("photoUrl").optional().isURL().withMessage("URL da foto inválida"),
       ]),
       userController.createUser
+    )
+
+    // Somente o próprio usuário pode atualizar seus dados
+    router.post("/user",
+      /*  #swagger.tags = ['Users']
+          #swagger.description = 'Endpoint para atualizar as informações do usuário autenticado. Requer autenticação. O corpo da requisição pode conter os campos name, username, email, password e photoUrl para atualização. O campo username deve ser único e o campo email deve estar em formato válido. A senha deve ter pelo menos 6 caracteres. O endpoint retorna os dados atualizados do usuário.'
+
+          #swagger.requestBody = {
+            description: 'Dados para atualizar o usuário autenticado',
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/updateUserSchema"
+                }
+              }
+            }
+          }
+
+          #swagger.responses[200] = {
+            description: 'Usuário atualizado com sucesso',
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/updateUserResponse"
+                }
+              }
+            }
+          }
+
+          #swagger.responses[400] = {
+            description: 'Requisição inválida, com detalhes dos erros de validação.',
+            content: {
+              "application/json": {
+                  schema: {
+                    $ref: '#/components/Error400Response'
+                  }
+              }
+            }
+          }
+
+          #swagger.responses[401] = {
+            description: 'Não autorizado, token de autenticação ausente ou inválido.',
+            content: {
+              "application/json": {
+                schema: {
+                  oneOf: [
+                    { $ref: '#/components/Error401TokenAusenteResponse' },
+                    { $ref: '#/components/Error401TokenInvalidoResponse' }
+                  ]
+                }
+              }
+            }
+          }
+
+          #swagger.responses[404] = {
+            description: 'Usuário não encontrado.',
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: '#/components/Error404Response'
+                }
+              }
+            }
+          }
+
+          #swagger.responses[409] = {
+            description: 'Conflito, email/username já existe.',
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: '#/components/Error409Response'
+                }
+              }
+            }
+          }
+
+          #swagger.responses[500] = {
+            description: 'Erro interno do servidor.',
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: '#/components/Error500Response'
+                }
+              }
+            }
+          }
+      */
+      dataValidation([
+        body("name").optional().isString().withMessage("Nome inválido").isLength({ min: 1 }).withMessage("O nome é obrigatório"),
+        body("username").optional().isString().withMessage("Nome de usuário inválido").isLength({ min: 3 }).withMessage("O nome de usuário deve ter pelo menos 3 caracteres"),
+        body("email").optional().isEmail().withMessage("Formato de email inválido"),
+        body("password").optional().isString().isLength({ min: 6 }).withMessage("A senha deve ter pelo menos 6 caracteres"),
+        body("photoUrl").optional().isURL().withMessage("URL da foto inválida"),
+      ]),
+      authMiddleware,
+      userController.updateUser
+    )
+
+    // Somente o próprio usuário pode excluir sua conta
+    router.delete("/user",
+      /*  #swagger.tags = ['Users']
+          #swagger.description = 'Endpoint para excluir a conta do usuário autenticado. Requer autenticação. O endpoint deleta o usuário e retorna uma mensagem de sucesso.'
+
+          #swagger.responses[200] = {
+            description: 'Usuário deletado com sucesso',
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/deleteUserResponse"
+                }
+              }
+            }
+          }
+
+          #swagger.responses[401] = {
+            description: 'Não autorizado, token de autenticação ausente ou inválido.',
+            content: {
+              "application/json": {
+                schema: {
+                  oneOf: [
+                    { $ref: '#/components/Error401TokenAusenteResponse' },
+                    { $ref: '#/components/Error401TokenInvalidoResponse' }
+                  ]
+                }
+              }
+            }
+          }
+
+          #swagger.responses[404] = {
+            description: 'Usuário não encontrado.',
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: '#/components/Error404Response'
+                }
+              }
+            }
+          }
+
+          #swagger.responses[500] = {
+            description: 'Erro interno do servidor.',
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: '#/components/Error500Response'
+                }
+              }
+            }
+          }
+      */
+      authMiddleware,
+      userController.deleteUser
     )
 
     // Qualquer usuário autenticado pode acessar
@@ -159,31 +313,6 @@ export class UsersRoutes {
       authMiddleware,
       userController.getUserById
     )
-
-    // Somente o próprio usuário pode atualizar seus dados
-    // router.post("/user/:id",
-    //   /*  #swagger.tags = ['Users'] */
-    //   dataValidation([
-    //     param("id").isUUID().withMessage("ID de usuário inválido"),
-    //     body("name").optional().isString().withMessage("Nome inválido").isLength({ min: 1 }).withMessage("O nome é obrigatório"),
-    //     body("username").optional().isString().withMessage("Nome de usuário inválido").isLength({ min: 3 }).withMessage("O nome de usuário deve ter pelo menos 3 caracteres"),
-    //     body("email").optional().isEmail().withMessage("Formato de email inválido"),
-    //     body("password").optional().isString().isLength({ min: 6 }).withMessage("A senha deve ter pelo menos 6 caracteres"),
-    //     body("photoUrl").optional().isURL().withMessage("URL da foto inválida"),
-    //   ])
-    //   // authMiddleware,
-    //   // userController.getUserById
-    // )
-
-    // Somente o próprio usuário pode excluir sua conta
-    // router.delete("/user/:id",
-    //   /*  #swagger.tags = ['Users'] */
-    //   dataValidation([
-    //     param("id").isUUID().withMessage("ID de usuário inválido"),
-    //   ])
-    //   //authMiddleware,
-    //   // userController.deleteUserById
-    // )
 
     return router;
   }
