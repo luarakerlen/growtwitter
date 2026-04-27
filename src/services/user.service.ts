@@ -72,7 +72,7 @@ export class UserService {
 
     if (!user) throw new HTTPError(404, "Usuário não encontrado");
 
-    return this.mapToModel(user);
+    return this.mapToModel(user, true);
   }
 
   /**
