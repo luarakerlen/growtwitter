@@ -78,7 +78,8 @@ export class TweetService {
    * Converte a entidade retornada do banco (Prisma) para o modelo de domínio.
    * 
    * @param entity - Tweet vindo do Prisma
-   * @returns Instância de Tweet (modelo da aplicação)
+   * @param withRelations - Indica se as relações (replies) devem ser incluídas no modelo
+   * @returns Instância de Tweet (modelo da aplicação), com ou sem relações dependendo do parâmetro withRelations
    */
   private mapToModel(entity: TweetPartialRelations, withRelations?: boolean): Tweet {
     const tweet = new Tweet(

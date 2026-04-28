@@ -6,7 +6,7 @@ import { TweetService } from "../services";
  * Controlador responsável por lidar com as requisições relacionadas aos tweets.
  * Ele recebe as requisições, chama os serviços apropriados e retorna as respostas.
  */
-export class TweetsController {
+export class TweetController {
   constructor(private tweetService: TweetService) { }
 
   /**

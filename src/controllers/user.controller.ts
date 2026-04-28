@@ -6,7 +6,7 @@ import { UserService } from "../services";
  * Controlador responsável por lidar com as requisições relacionadas aos usuários.
  * Ele recebe as requisições, chama os serviços apropriados e retorna as respostas.
  */
-export class UsersController {
+export class UserController {
   constructor(private userService: UserService) { }
 
   /**
