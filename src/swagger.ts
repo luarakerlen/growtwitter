@@ -33,8 +33,16 @@ const doc = {
       description: 'Endpoints relacionados ao gerenciamento de usuários, incluindo registro, login e atualização de perfil.',
     },
     {
-      name: 'Follow',
+      name: 'Follows',
       description: 'Endpoints relacionados ao gerenciamento de seguidores, permitindo que os usuários sigam e deixem de seguir outros usuários.',
+    },
+    {
+      name: 'Tweets',
+      description: 'Endpoints relacionados ao gerenciamento de tweets, incluindo criação, leitura, atualização e exclusão de tweets.',
+    },
+    {
+      name: 'Likes',
+      description: 'Endpoints relacionados ao gerenciamento de curtidas em tweets, permitindo que os usuários curtam e descurtam tweets.',
     }
   ],
   components: {
@@ -424,7 +432,7 @@ const doc = {
 };
 
 const outputFile = './swagger.json';
-const routes = ['./routes/health.routes.ts', './routes/auth.routes.ts', './routes/users.routes.ts', './routes/follow.routes.ts'];
+const routes = ['./routes/health.routes.ts', './routes/auth.routes.ts', './routes/users.routes.ts', './routes/follows.routes.ts', './routes/tweets.routes.ts', './routes/likes.routes.ts'];
 
 /* NOTE: If you are using the express Router, you must pass in the 'routes' only the 
 root file where the route starts, such as index.js, app.js, routes.js, etc ... */

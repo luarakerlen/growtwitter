@@ -24,8 +24,16 @@
       "description": "Endpoints relacionados ao gerenciamento de usuários, incluindo registro, login e atualização de perfil."
     },
     {
-      "name": "Follow",
+      "name": "Follows",
       "description": "Endpoints relacionados ao gerenciamento de seguidores, permitindo que os usuários sigam e deixem de seguir outros usuários."
+    },
+    {
+      "name": "Tweets",
+      "description": "Endpoints relacionados ao gerenciamento de tweets, incluindo criação, leitura, atualização e exclusão de tweets."
+    },
+    {
+      "name": "Likes",
+      "description": "Endpoints relacionados ao gerenciamento de curtidas em tweets, permitindo que os usuários curtam e descurtam tweets."
     }
   ],
   "paths": {
@@ -392,7 +400,7 @@
     "/users/{id}/follow": {
       "post": {
         "tags": [
-          "Follow"
+          "Follows"
         ],
         "description": "Endpoint para seguir um usuário. O ID do usuário a ser seguido deve ser fornecido como parâmetro de caminho.",
         "parameters": [
@@ -462,7 +470,7 @@
       },
       "delete": {
         "tags": [
-          "Follow"
+          "Follows"
         ],
         "description": "Endpoint para deixar de seguir um usuário. O ID do usuário a ser deixado de seguir deve ser fornecido como parâmetro de caminho.",
         "parameters": [

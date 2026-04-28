@@ -8,12 +8,12 @@ import { followController } from "../container";
  * - POST /users/:id/follow: Permite que um usuário siga outro usuário.
  * - DELETE /users/:id/follow: Permite que um usuário deixe de seguir outro usuário.
  */
-export class FollowRoutes {
+export class FollowsRoutes {
   public static bind() {
     const router = express.Router();
 
     router.post("/users/:id/follow",
-      /*  #swagger.tags = ['Follow']
+      /*  #swagger.tags = ['Follows']
           #swagger.description = 'Endpoint para seguir um usuário. O ID do usuário a ser seguido deve ser fornecido como parâmetro de caminho.'
 
           #swagger.parameters['id'] = {
@@ -86,7 +86,7 @@ export class FollowRoutes {
     )
 
     router.delete("/users/:id/follow",
-      /*  #swagger.tags = ['Follow']
+      /*  #swagger.tags = ['Follows']
           #swagger.description = 'Endpoint para deixar de seguir um usuário. O ID do usuário a ser deixado de seguir deve ser fornecido como parâmetro de caminho.'
 
           #swagger.parameters['id'] = {
