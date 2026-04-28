@@ -22,6 +22,10 @@
     {
       "name": "Users",
       "description": "Endpoints relacionados ao gerenciamento de usuários, incluindo registro, login e atualização de perfil."
+    },
+    {
+      "name": "Follow",
+      "description": "Endpoints relacionados ao gerenciamento de seguidores, permitindo que os usuários sigam e deixem de seguir outros usuários."
     }
   ],
   "paths": {
@@ -341,6 +345,148 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/deleteUserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado, token de autenticação ausente ou inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/Error401TokenAusenteResponse"
+                    },
+                    {
+                      "$ref": "#/components/Error401TokenInvalidoResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário não encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error404Response"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error500Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}/follow": {
+      "post": {
+        "tags": [
+          "Follow"
+        ],
+        "description": "Endpoint para seguir um usuário. O ID do usuário a ser seguido deve ser fornecido como parâmetro de caminho.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Usuário seguido com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, com detalhes dos erros de validação.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error400Response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado, token de autenticação ausente ou inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/Error401TokenAusenteResponse"
+                    },
+                    {
+                      "$ref": "#/components/Error401TokenInvalidoResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário não encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error404Response"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error500Response"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Follow"
+        ],
+        "description": "Endpoint para deixar de seguir um usuário. O ID do usuário a ser deixado de seguir deve ser fornecido como parâmetro de caminho.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuário deixado de seguir com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, com detalhes dos erros de validação.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error400Response"
                 }
               }
             }
@@ -822,6 +968,34 @@
           },
           "data": {
             "$ref": "#/components/User"
+          }
+        }
+      },
+      "FollowResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Usuário seguido / deixado de seguir com sucesso."
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "followerId": {
+                "type": "string",
+                "description": "ID do usuário que está seguindo",
+                "example": "72b29c86-3525-4ce3-84c0-c76243b090c3"
+              },
+              "followingId": {
+                "type": "string",
+                "description": "ID do usuário que está sendo seguido",
+                "example": "123e4567-e89b-12d3-a456-426614174000"
+              }
+            }
           }
         }
       },

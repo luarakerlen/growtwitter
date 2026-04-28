@@ -31,6 +31,10 @@ const doc = {
     {
       name: 'Users',
       description: 'Endpoints relacionados ao gerenciamento de usuários, incluindo registro, login e atualização de perfil.',
+    },
+    {
+      name: 'Follow',
+      description: 'Endpoints relacionados ao gerenciamento de seguidores, permitindo que os usuários sigam e deixem de seguir outros usuários.',
     }
   ],
   components: {
@@ -330,6 +334,28 @@ const doc = {
           }
         }
       },
+      FollowResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Usuário seguido / deixado de seguir com sucesso.' },
+          data: {
+            type: 'object',
+            properties: {
+              followerId: {
+                type: 'string',
+                description: 'ID do usuário que está seguindo',
+                example: '72b29c86-3525-4ce3-84c0-c76243b090c3'
+              },
+              followingId: {
+                type: 'string',
+                description: 'ID do usuário que está sendo seguido',
+                example: '123e4567-e89b-12d3-a456-426614174000'
+              }
+            }
+          }
+        }
+      },
       apiHealthResponse: {
         type: 'object',
         properties: {
@@ -398,7 +424,7 @@ const doc = {
 };
 
 const outputFile = './swagger.json';
-const routes = ['./routes/health.routes.ts', './routes/auth.routes.ts', './routes/users.routes.ts'];
+const routes = ['./routes/health.routes.ts', './routes/auth.routes.ts', './routes/users.routes.ts', './routes/follow.routes.ts'];
 
 /* NOTE: If you are using the express Router, you must pass in the 'routes' only the 
 root file where the route starts, such as index.js, app.js, routes.js, etc ... */
