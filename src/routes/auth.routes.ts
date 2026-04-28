@@ -3,6 +3,10 @@ import { dataValidation } from "../middlewares";
 import { body } from "express-validator";
 import { authController } from "../container";
 
+/**
+ * Classe responsável por definir as rotas de autenticação.
+ * - POST /auth/login: Rota para autenticar um usuário. O corpo da requisição deve conter os campos email e password. O endpoint retorna um token JWT em caso de sucesso.
+ */
 export class AuthRoutes {
   public static bind() {
     const router = express.Router();

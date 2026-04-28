@@ -10,6 +10,7 @@ export class User {
     private updatedAt: Date,
     private tweets?: Partial<TweetDto>[],
     private followers?: Partial<UserDto>[],
+    private following?: Partial<UserDto>[],
   ) { }
 
   public withTweets(tweets: Partial<TweetDto>[]) {
@@ -22,6 +23,11 @@ export class User {
     return this;
   }
 
+  public withFollowing(following: Partial<UserDto>[]) {
+    this.following = following;
+    return this;
+  }
+
   public toJSON(): UserDto {
     return {
       id: this.id,
@@ -30,6 +36,7 @@ export class User {
       username: this.username,
       tweets: this.tweets,
       followers: this.followers,
+      following: this.following,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };

@@ -132,6 +132,7 @@ export class UserService {
     if (withRelations) {
       user.withTweets(entity.tweets || [])
       user.withFollowers(entity.followers?.map(f => f.follower) || []);
+      user.withFollowing(entity.following?.map(f => f.following) || []);
     }
 
     return user;

@@ -47,15 +47,10 @@ export class AuthService {
         throw new HTTPError(500, "JWT_SECRET não configurado. Verifique as variáveis de ambiente.")
       }
 
-      console.log("Token recebido:", token);
-      console.log("JWT_SECRET utilizado:", envs.JWT_SECRET);
-
       const validToken = verify(token, envs.JWT_SECRET)
-      console.log("Token validado:", validToken);
 
       return validToken as JwtUserPayload;
     } catch (error) {
-      console.log("Token inválido:", error);
       return null;
     }
   }

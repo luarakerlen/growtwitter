@@ -21,6 +21,17 @@ export const userWithRelations = Prisma.validator<Prisma.UserDefaultArgs>()({
         }
       }
     },
+    following: {
+      select: {
+        following: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+          }
+        }
+      }
+    }
   }
 });
 
