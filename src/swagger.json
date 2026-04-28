@@ -414,7 +414,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FollowResponse"
+                  "$ref": "#/components/schemas/followResponse"
                 }
               }
             }
@@ -484,7 +484,290 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FollowResponse"
+                  "$ref": "#/components/schemas/followResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, com detalhes dos erros de validação.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error400Response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado, token de autenticação ausente ou inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/Error401TokenAusenteResponse"
+                    },
+                    {
+                      "$ref": "#/components/Error401TokenInvalidoResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário não encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error404Response"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error500Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tweets": {
+      "post": {
+        "tags": [
+          "Tweets"
+        ],
+        "description": "Endpoint para criar um novo tweet. O corpo da requisição deve conter o campo \"content\" com o conteúdo do tweet. Requer autenticação.",
+        "responses": {
+          "201": {
+            "description": "Tweet criado com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/tweetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, com detalhes dos erros de validação.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error400Response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado, token de autenticação ausente ou inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/Error401TokenAusenteResponse"
+                    },
+                    {
+                      "$ref": "#/components/Error401TokenInvalidoResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error500Response"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "description": "Dados para criar um novo tweet",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createTweetSchema"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tweets/{id}/reply": {
+      "post": {
+        "tags": [
+          "Tweets"
+        ],
+        "description": "Endpoint para criar uma resposta a um tweet específico. O corpo da requisição deve conter o campo \"content\" com o conteúdo da resposta. Requer autenticação.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tweetId"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Resposta ao tweet criada com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/createTweetReplyResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, com detalhes dos erros de validação.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error400Response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado, token de autenticação ausente ou inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/Error401TokenAusenteResponse"
+                    },
+                    {
+                      "$ref": "#/components/Error401TokenInvalidoResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error500Response"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "description": "Dados para criar uma resposta a um tweet",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createTweetSchema"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tweets/{id}": {
+      "get": {
+        "tags": [
+          "Tweets"
+        ],
+        "description": "Endpoint para recuperar um tweet pelo seu ID e suas respostas. O ID do tweet a ser recuperado deve ser fornecido como parâmetro de caminho.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tweetId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tweet recuperado com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getTweetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, com detalhes dos erros de validação.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error400Response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado, token de autenticação ausente ou inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/Error401TokenAusenteResponse"
+                    },
+                    {
+                      "$ref": "#/components/Error401TokenInvalidoResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Tweet não encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error404Response"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error500Response"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Tweets"
+        ],
+        "description": "Endpoint para deletar um tweet. O ID do tweet a ser deletado deve ser fornecido como parâmetro de caminho.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tweetId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tweet deletado com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/tweetResponse"
                 }
               }
             }
@@ -553,6 +836,52 @@
           "type": "string",
           "description": "Conteúdo do tweet",
           "example": "Este é um tweet de exemplo."
+        },
+        "type": {
+          "type": "string",
+          "description": "Tipo do tweet (POST ou REPLY)",
+          "example": "POST"
+        },
+        "parentId": {
+          "type": "string",
+          "description": "ID do tweet pai, presente apenas para tweets do tipo REPLY",
+          "example": ""
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Data e hora de criação do tweet",
+          "example": "2024-06-01T12:00:00Z"
+        },
+        "userId": {
+          "type": "string",
+          "description": "ID do usuário que criou o tweet",
+          "example": "72b29c86-3525-4ce3-84c0-c76243b090c3"
+        }
+      }
+    },
+    "TweetReply": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID do tweet",
+          "example": "123e4567-e89b-12d3-a456-426614174000"
+        },
+        "content": {
+          "type": "string",
+          "description": "Conteúdo do tweet",
+          "example": "Este é um tweet de exemplo."
+        },
+        "type": {
+          "type": "string",
+          "description": "Tipo do tweet (POST ou REPLY)",
+          "example": "REPLY"
+        },
+        "parentId": {
+          "type": "string",
+          "description": "ID do tweet pai, presente apenas para tweets do tipo REPLY",
+          "example": "123e4567-e89b-12d3-a456-426614174000"
         },
         "createdAt": {
           "type": "string",
@@ -750,29 +1079,15 @@
           "example": "72b29c86-3525-4ce3-84c0-c76243b090c3"
         }
       },
-      "taskTitle": {
-        "name": "title",
-        "in": "query",
-        "description": "Filtro por título da tarefa",
-        "required": false,
+      "tweetId": {
+        "name": "id",
+        "in": "path",
+        "description": "ID do tweet",
+        "required": true,
         "schema": {
           "type": "string",
-          "example": "Comprar leite"
-        }
-      },
-      "taskStatus": {
-        "name": "status",
-        "in": "query",
-        "description": "Filtro por status da tarefa",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "enum": [
-            "pending",
-            "in_progress",
-            "completed"
-          ],
-          "example": "pending"
+          "format": "uuid",
+          "example": "f09e401a-88ca-4842-b475-cc55bb4c7070"
         }
       },
       "page": {
@@ -889,6 +1204,19 @@
         },
         "required": []
       },
+      "createTweetSchema": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "Conteúdo do tweet",
+            "example": "Este é um tweet de exemplo."
+          }
+        },
+        "required": [
+          "content"
+        ]
+      },
       "createUserResponse": {
         "type": "object",
         "properties": {
@@ -979,7 +1307,7 @@
           }
         }
       },
-      "FollowResponse": {
+      "followResponse": {
         "type": "object",
         "properties": {
           "success": {
@@ -1002,6 +1330,65 @@
                 "type": "string",
                 "description": "ID do usuário que está sendo seguido",
                 "example": "123e4567-e89b-12d3-a456-426614174000"
+              }
+            }
+          }
+        }
+      },
+      "tweetResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Tweet criado com sucesso!"
+          },
+          "data": {
+            "$ref": "#/components/Tweet"
+          }
+        }
+      },
+      "createTweetReplyResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Resposta ao tweet criada com sucesso!"
+          },
+          "data": {
+            "$ref": "#/components/TweetReply"
+          }
+        }
+      },
+      "getTweetResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Tweet recuperado com sucesso!"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "tweet": {
+                "$ref": "#/components/Tweet"
+              },
+              "replies": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/TweetReply"
+                }
               }
             }
           }

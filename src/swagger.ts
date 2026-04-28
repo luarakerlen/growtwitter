@@ -59,6 +59,52 @@ const doc = {
           description: 'Conteúdo do tweet',
           example: 'Este é um tweet de exemplo.'
         },
+        type: {
+          type: 'string',
+          description: 'Tipo do tweet (POST ou REPLY)',
+          example: 'POST'
+        },
+        parentId: {
+          type: 'string',
+          description: 'ID do tweet pai, presente apenas para tweets do tipo REPLY',
+          example: ''
+        },
+        createdAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Data e hora de criação do tweet',
+          example: '2024-06-01T12:00:00Z'
+        },
+        userId: {
+          type: 'string',
+          description: 'ID do usuário que criou o tweet',
+          example: '72b29c86-3525-4ce3-84c0-c76243b090c3'
+        }
+      }
+    },
+    TweetReply: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'ID do tweet',
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        },
+        content: {
+          type: 'string',
+          description: 'Conteúdo do tweet',
+          example: 'Este é um tweet de exemplo.'
+        },
+        type: {
+          type: 'string',
+          description: 'Tipo do tweet (POST ou REPLY)',
+          example: 'REPLY'
+        },
+        parentId: {
+          type: 'string',
+          description: 'ID do tweet pai, presente apenas para tweets do tipo REPLY',
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        },
         createdAt: {
           type: 'string',
           format: 'date-time',
@@ -281,6 +327,17 @@ const doc = {
         },
         required: []
       },
+      createTweetSchema: {
+        type: 'object',
+        properties: {
+          content: {
+            type: 'string',
+            description: 'Conteúdo do tweet',
+            example: 'Este é um tweet de exemplo.'
+          }
+        },
+        required: ['content']
+      },
       // Responses
       createUserResponse: {
         type: 'object',
@@ -342,7 +399,7 @@ const doc = {
           }
         }
       },
-      FollowResponse: {
+      followResponse: {
         type: 'object',
         properties: {
           success: { type: 'boolean', example: true },
@@ -359,6 +416,70 @@ const doc = {
                 type: 'string',
                 description: 'ID do usuário que está sendo seguido',
                 example: '123e4567-e89b-12d3-a456-426614174000'
+              }
+            }
+          }
+        }
+      },
+      tweetResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Tweet criado com sucesso!' },
+          data: {
+            $ref: '#/components/Tweet'
+          }
+        }
+      },
+      createTweetReplyResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Resposta ao tweet criada com sucesso!' },
+          data: {
+            $ref: '#/components/TweetReply'
+          }
+        }
+      },
+      getTweetResponse: {
+        //         {
+        //   "success": true,
+        //   "message": "Tweet recuperado com sucesso!",
+        //   "data": {
+        //     "id": "f09e401a-88ca-4842-b475-cc55bb4c7070",
+        //     "content": "Este é um tweet de exemplo.",
+        //     "authorId": "72b29c86-3525-4ce3-84c0-c76243b090c3",
+        //     "type": "POST",
+        //     "createdAt": "2026-04-28T18:55:33.186Z",
+        //     "updatedAt": "2026-04-28T18:55:33.186Z",
+        //     "replies": [
+        //       {
+        //         "id": "67076021-aeea-4cf0-a376-2bd082290e96",
+        //         "content": "Este é uma resposta de exemplo.",
+        //         "type": "REPLY",
+        //         "authorId": "72b29c86-3525-4ce3-84c0-c76243b090c3",
+        //         "parentId": "f09e401a-88ca-4842-b475-cc55bb4c7070",
+        //         "createdAt": "2026-04-28T19:10:19.107Z",
+        //         "updatedAt": "2026-04-28T19:10:19.107Z"
+        //       }
+        //     ]
+        //   }
+        // }
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Tweet recuperado com sucesso!' },
+          data: {
+            type: 'object',
+            properties: {
+              tweet: {
+                $ref: '#/components/Tweet'
+              },
+              replies: {
+                type: 'array',
+                items: {
+                  $ref: '#/components/TweetReply'
+                }
               }
             }
           }
@@ -384,25 +505,15 @@ const doc = {
           example: '72b29c86-3525-4ce3-84c0-c76243b090c3'
         }
       },
-      taskTitle: {
-        name: 'title',
-        in: 'query',
-        description: 'Filtro por título da tarefa',
-        required: false,
+      tweetId: {
+        name: 'id',
+        in: 'path',
+        description: 'ID do tweet',
+        required: true,
         schema: {
           type: 'string',
-          example: 'Comprar leite'
-        }
-      },
-      taskStatus: {
-        name: 'status',
-        in: 'query',
-        description: 'Filtro por status da tarefa',
-        required: false,
-        schema: {
-          type: 'string',
-          enum: ['pending', 'in_progress', 'completed'],
-          example: 'pending'
+          format: 'uuid',
+          example: 'f09e401a-88ca-4842-b475-cc55bb4c7070'
         }
       },
       page: {

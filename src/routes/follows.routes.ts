@@ -25,7 +25,7 @@ export class FollowsRoutes {
             content: {
               "application/json": {
                 schema: {
-                  $ref: "#/components/schemas/FollowResponse"
+                  $ref: "#/components/schemas/followResponse"
                 }
               }
             }
@@ -98,7 +98,7 @@ export class FollowsRoutes {
             content: {
               "application/json": {
                 schema: {
-                  $ref: "#/components/schemas/FollowResponse"
+                  $ref: "#/components/schemas/followResponse"
                 }
               }
             }

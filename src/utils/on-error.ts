@@ -17,12 +17,18 @@ export function onError(error: unknown, res: Response): Response {
   if (error instanceof PrismaClientKnownRequestError) {
     let statusCode = 500
     let message = "Internal server error"
-    let details = error.message
+    let details = `${error.code}: ${error.message}`;
 
     if (error.code === 'P2002') {
       message = "Falha de validação: valor duplicado"
       details = `${error.meta?.target} já existe.`;
       statusCode = 409;
+    }
+
+    if (error.code === 'P2025') {
+      message = "Recurso não encontrado"
+      details = "O recurso que você está tentando acessar ou modificar não existe.";
+      statusCode = 404;
     }
 
     return HTTPResponse({
