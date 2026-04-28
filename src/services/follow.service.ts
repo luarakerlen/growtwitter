@@ -5,7 +5,8 @@ import { HTTPError } from "../utils";
 import { Follow } from '../models';
 
 /**
- * Service responsável por 
+ * Service responsável por lidar com a lógica de negócios relacionada aos follows (seguir/deixar de seguir).
+ * Ele recebe os dados do controlador, processa as regras de negócio e interage com o repositório para acessar o banco de dados.
  */
 export class FollowService {
   constructor(private followRepository: FollowRepository) { }
