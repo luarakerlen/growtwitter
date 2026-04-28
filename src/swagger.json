@@ -896,6 +896,33 @@
         }
       }
     },
+    "Like": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "ID do usuário que curtiu o tweet",
+          "example": "72b29c86-3525-4ce3-84c0-c76243b090c3"
+        },
+        "tweetId": {
+          "type": "string",
+          "description": "ID do tweet que foi curtido",
+          "example": "123e4567-e89b-12d3-a456-426614174000"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Data e hora de criação da curtida",
+          "example": "2024-06-01T12:00:00Z"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Data e hora da última atualização da curtida",
+          "example": "2024-06-02T15:30:00Z"
+        }
+      }
+    },
     "User": {
       "type": "object",
       "properties": {
@@ -1383,6 +1410,12 @@
             "properties": {
               "tweet": {
                 "$ref": "#/components/Tweet"
+              },
+              "likes": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/Like"
+                }
               },
               "replies": {
                 "type": "array",

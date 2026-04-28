@@ -1,4 +1,5 @@
 import { TweetType } from "@prisma/client";
+import { LikeDto } from "./like.dto";
 
 export interface TweetDto {
   id: string;
@@ -8,6 +9,7 @@ export interface TweetDto {
   createdAt: Date;
   updatedAt: Date;
   parentId?: string;
+  likes?: LikeDto[];
   replies?: Partial<TweetDto>[];
 }
 

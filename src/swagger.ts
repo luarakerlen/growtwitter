@@ -118,6 +118,33 @@ const doc = {
         }
       }
     },
+    Like: {
+      type: 'object',
+      properties: {
+        userId: {
+          type: 'string',
+          description: 'ID do usuário que curtiu o tweet',
+          example: '72b29c86-3525-4ce3-84c0-c76243b090c3'
+        },
+        tweetId: {
+          type: 'string',
+          description: 'ID do tweet que foi curtido',
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        },
+        createdAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Data e hora de criação da curtida',
+          example: '2024-06-01T12:00:00Z'
+        },
+        updatedAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Data e hora da última atualização da curtida',
+          example: '2024-06-02T15:30:00Z'
+        }
+      }
+    },
     User: {
       type: 'object',
       properties: {
@@ -442,29 +469,6 @@ const doc = {
         }
       },
       getTweetResponse: {
-        //         {
-        //   "success": true,
-        //   "message": "Tweet recuperado com sucesso!",
-        //   "data": {
-        //     "id": "f09e401a-88ca-4842-b475-cc55bb4c7070",
-        //     "content": "Este é um tweet de exemplo.",
-        //     "authorId": "72b29c86-3525-4ce3-84c0-c76243b090c3",
-        //     "type": "POST",
-        //     "createdAt": "2026-04-28T18:55:33.186Z",
-        //     "updatedAt": "2026-04-28T18:55:33.186Z",
-        //     "replies": [
-        //       {
-        //         "id": "67076021-aeea-4cf0-a376-2bd082290e96",
-        //         "content": "Este é uma resposta de exemplo.",
-        //         "type": "REPLY",
-        //         "authorId": "72b29c86-3525-4ce3-84c0-c76243b090c3",
-        //         "parentId": "f09e401a-88ca-4842-b475-cc55bb4c7070",
-        //         "createdAt": "2026-04-28T19:10:19.107Z",
-        //         "updatedAt": "2026-04-28T19:10:19.107Z"
-        //       }
-        //     ]
-        //   }
-        // }
         type: 'object',
         properties: {
           success: { type: 'boolean', example: true },
@@ -474,6 +478,12 @@ const doc = {
             properties: {
               tweet: {
                 $ref: '#/components/Tweet'
+              },
+              likes: {
+                type: 'array',
+                items: {
+                  $ref: '#/components/Like'
+                }
               },
               replies: {
                 type: 'array',

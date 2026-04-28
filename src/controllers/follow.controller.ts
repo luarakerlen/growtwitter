@@ -3,7 +3,9 @@ import { HTTPResponse, onError } from "../utils";
 import { FollowService } from "../services";
 
 /**
- * Controlador responsável por 
+ * Controlador responsável por gerenciar as operações de seguir e deixar de seguir usuários,
+ * utilizando o FollowService para realizar as ações no banco de dados e retornando
+ * respostas HTTP adequadas para cada operação.
  */
 export class FollowController {
   constructor(private followService: FollowService) { }

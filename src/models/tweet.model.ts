@@ -1,5 +1,5 @@
 import { TweetType } from "@prisma/client";
-import { TweetDto } from "../dtos";
+import { LikeDto, TweetDto } from "../dtos";
 
 export class Tweet {
   constructor(
@@ -10,8 +10,14 @@ export class Tweet {
     private createdAt: Date,
     private updatedAt: Date,
     private parentId?: string,
+    private likes?: LikeDto[],
     private replies?: Partial<TweetDto>[],
   ) { }
+
+  public withLikes(likes: LikeDto[]) {
+    this.likes = likes;
+    return this;
+  }
 
   public withReplies(replies: Partial<TweetDto>[]) {
     this.replies = replies;
@@ -27,6 +33,7 @@ export class Tweet {
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       parentId: this.parentId,
+      likes: this.likes,
       replies: this.replies,
     };
   }

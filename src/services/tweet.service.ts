@@ -93,6 +93,8 @@ export class TweetService {
     );
 
     if (withRelations) {
+      tweet.withLikes(entity.likes || []);
+
       tweet.withReplies(
         (entity.replies || []).map((reply) => ({
           ...reply,
