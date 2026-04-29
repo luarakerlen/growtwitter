@@ -43,6 +43,10 @@ const doc = {
     {
       name: 'Likes',
       description: 'Endpoints relacionados ao gerenciamento de curtidas em tweets, permitindo que os usuários curtam e descurtam tweets.',
+    },
+    {
+      name: 'Feed',
+      description: 'Endpoints relacionados ao feed de tweets dos usuários, permitindo que os usuários visualizem os tweets de seus seguidores.',
     }
   ],
   components: {
@@ -79,7 +83,14 @@ const doc = {
           type: 'string',
           description: 'ID do usuário que criou o tweet',
           example: '72b29c86-3525-4ce3-84c0-c76243b090c3'
-        }
+        },
+        likes: {
+          type: 'array',
+          description: 'Lista de curtidas associadas ao tweet',
+          items: {
+            $ref: '#/components/Like'
+          }
+        },
       }
     },
     TweetReply: {
@@ -115,6 +126,63 @@ const doc = {
           type: 'string',
           description: 'ID do usuário que criou o tweet',
           example: '72b29c86-3525-4ce3-84c0-c76243b090c3'
+        },
+        likes: {
+          type: 'array',
+          description: 'Lista de curtidas associadas ao tweet',
+          items: {
+            $ref: '#/components/Like'
+          }
+        },
+      }
+    },
+    TweetWithReply: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'ID do tweet',
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        },
+        content: {
+          type: 'string',
+          description: 'Conteúdo do tweet',
+          example: 'Este é um tweet de exemplo.'
+        },
+        type: {
+          type: 'string',
+          description: 'Tipo do tweet (POST ou REPLY)',
+          example: 'POST'
+        },
+        parentId: {
+          type: 'string',
+          description: 'ID do tweet pai, presente apenas para tweets do tipo REPLY',
+          example: ''
+        },
+        createdAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Data e hora de criação do tweet',
+          example: '2024-06-01T12:00:00Z'
+        },
+        userId: {
+          type: 'string',
+          description: 'ID do usuário que criou o tweet',
+          example: '72b29c86-3525-4ce3-84c0-c76243b090c3'
+        },
+        likes: {
+          type: 'array',
+          description: 'Lista de curtidas associadas ao tweet',
+          items: {
+            $ref: '#/components/Like'
+          }
+        },
+        replies: {
+          type: 'array',
+          description: 'Lista de respostas associadas ao tweet',
+          items: {
+            $ref: '#/components/TweetReply'
+          }
         }
       }
     },
@@ -453,6 +521,30 @@ const doc = {
           }
         }
       },
+      getUserFeedResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Feed do usuário recuperado com sucesso!' },
+          data: {
+            type: 'object',
+            properties: {
+              tweets: {
+                type: 'array',
+                items: {
+                  oneOf: [
+                    { $ref: '#/components/Tweet' },
+                    { $ref: '#/components/TweetReply' }
+                  ]
+                }
+              },
+              pagination: {
+                $ref: '#/components/Pagination'
+              }
+            }
+          }
+        }
+      },
       followResponse: {
         type: 'object',
         properties: {
@@ -499,24 +591,7 @@ const doc = {
           success: { type: 'boolean', example: true },
           message: { type: 'string', example: 'Tweet recuperado com sucesso!' },
           data: {
-            type: 'object',
-            properties: {
-              tweet: {
-                $ref: '#/components/Tweet'
-              },
-              likes: {
-                type: 'array',
-                items: {
-                  $ref: '#/components/Like'
-                }
-              },
-              replies: {
-                type: 'array',
-                items: {
-                  $ref: '#/components/TweetReply'
-                }
-              }
-            }
+            $ref: '#/components/TweetWithReply'
           }
         }
       },
@@ -578,7 +653,7 @@ const doc = {
 };
 
 const outputFile = './swagger.json';
-const routes = ['./routes/health.routes.ts', './routes/auth.routes.ts', './routes/users.routes.ts', './routes/follows.routes.ts', './routes/tweets.routes.ts', './routes/likes.routes.ts'];
+const routes = ['./routes/health.routes.ts', './routes/auth.routes.ts', './routes/users.routes.ts', './routes/follows.routes.ts', './routes/tweets.routes.ts', './routes/likes.routes.ts', './routes/feed.routes.ts'];
 
 /* NOTE: If you are using the express Router, you must pass in the 'routes' only the 
 root file where the route starts, such as index.js, app.js, routes.js, etc ... */

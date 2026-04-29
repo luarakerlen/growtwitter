@@ -34,6 +34,10 @@
     {
       "name": "Likes",
       "description": "Endpoints relacionados ao gerenciamento de curtidas em tweets, permitindo que os usuários curtam e descurtam tweets."
+    },
+    {
+      "name": "Feed",
+      "description": "Endpoints relacionados ao feed de tweets dos usuários, permitindo que os usuários visualizem os tweets de seus seguidores."
     }
   ],
   "paths": {
@@ -963,6 +967,73 @@
           }
         }
       }
+    },
+    "/feed": {
+      "get": {
+        "tags": [
+          "Feed"
+        ],
+        "description": "Endpoint para obter o feed do usuário autenticado. Requer autenticação. O endpoint retorna os tweets do usuário e de seus seguidores.",
+        "responses": {
+          "200": {
+            "description": "Feed do usuário obtido com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getUserFeedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, com detalhes dos erros de validação.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error400Response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado, token de autenticação ausente ou inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/Error401TokenAusenteResponse"
+                    },
+                    {
+                      "$ref": "#/components/Error401TokenInvalidoResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário não encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error404Response"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error500Response"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -999,6 +1070,13 @@
           "type": "string",
           "description": "ID do usuário que criou o tweet",
           "example": "72b29c86-3525-4ce3-84c0-c76243b090c3"
+        },
+        "likes": {
+          "type": "array",
+          "description": "Lista de curtidas associadas ao tweet",
+          "items": {
+            "$ref": "#/components/Like"
+          }
         }
       }
     },
@@ -1035,6 +1113,63 @@
           "type": "string",
           "description": "ID do usuário que criou o tweet",
           "example": "72b29c86-3525-4ce3-84c0-c76243b090c3"
+        },
+        "likes": {
+          "type": "array",
+          "description": "Lista de curtidas associadas ao tweet",
+          "items": {
+            "$ref": "#/components/Like"
+          }
+        }
+      }
+    },
+    "TweetWithReply": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID do tweet",
+          "example": "123e4567-e89b-12d3-a456-426614174000"
+        },
+        "content": {
+          "type": "string",
+          "description": "Conteúdo do tweet",
+          "example": "Este é um tweet de exemplo."
+        },
+        "type": {
+          "type": "string",
+          "description": "Tipo do tweet (POST ou REPLY)",
+          "example": "POST"
+        },
+        "parentId": {
+          "type": "string",
+          "description": "ID do tweet pai, presente apenas para tweets do tipo REPLY",
+          "example": ""
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Data e hora de criação do tweet",
+          "example": "2024-06-01T12:00:00Z"
+        },
+        "userId": {
+          "type": "string",
+          "description": "ID do usuário que criou o tweet",
+          "example": "72b29c86-3525-4ce3-84c0-c76243b090c3"
+        },
+        "likes": {
+          "type": "array",
+          "description": "Lista de curtidas associadas ao tweet",
+          "items": {
+            "$ref": "#/components/Like"
+          }
+        },
+        "replies": {
+          "type": "array",
+          "description": "Lista de respostas associadas ao tweet",
+          "items": {
+            "$ref": "#/components/TweetReply"
+          }
         }
       }
     },
@@ -1503,6 +1638,40 @@
           }
         }
       },
+      "getUserFeedResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Feed do usuário recuperado com sucesso!"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "tweets": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/Tweet"
+                    },
+                    {
+                      "$ref": "#/components/TweetReply"
+                    }
+                  ]
+                }
+              },
+              "pagination": {
+                "$ref": "#/components/Pagination"
+              }
+            }
+          }
+        }
+      },
       "followResponse": {
         "type": "object",
         "properties": {
@@ -1579,24 +1748,7 @@
             "example": "Tweet recuperado com sucesso!"
           },
           "data": {
-            "type": "object",
-            "properties": {
-              "tweet": {
-                "$ref": "#/components/Tweet"
-              },
-              "likes": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/Like"
-                }
-              },
-              "replies": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/TweetReply"
-                }
-              }
-            }
+            "$ref": "#/components/TweetWithReply"
           }
         }
       },
