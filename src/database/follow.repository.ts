@@ -28,4 +28,16 @@ export class FollowRepository {
       }
     });
   }
+
+  /**
+   * Obtém os IDs dos usuários que um determinado usuário está seguindo.
+   * @param userId - ID do usuário para o qual queremos obter os IDs dos usuários que ele está seguindo
+   * @returns Lista de IDs dos usuários que o usuário está seguindo
+   */
+  public async getUserFollowingIds(userId: string) {
+    return prisma.follow.findMany({
+      where: { followerId: userId },
+      select: { followingId: true }
+    });
+  }
 }

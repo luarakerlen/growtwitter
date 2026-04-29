@@ -1,6 +1,6 @@
 import prisma from "./prisma.repository";
 import { CreateTweetDto } from "../dtos";
-import { tweetWithRelations } from "../config";
+import { tweetWithRelations, feedTweets } from "../config";
 
 /**
  * Repository responsável por todas as operações de banco relacionadas a Tweet.
@@ -44,6 +44,43 @@ export class TweetRepository {
   public async deleteTweet(authorId: string, tweetId: string) {
     return prisma.tweet.delete({
       where: { id: tweetId, authorId }
+    })
+  }
+
+  /**
+   * Busca os tweets para o feed de um usuário, filtrando pelos IDs dos autores e paginando os resultados.
+   * @param authorIds - Lista de IDs dos autores cujos tweets devem ser incluídos no feed
+   * @param params - Parâmetros de paginação (skip e take)
+   * @returns Lista de tweets encontrados para o feed, incluindo as informações do autor, likes e respostas, ordenados por data de criação (mais recentes primeiro)
+   */
+  public async getFeedTweets(authorIds: string[], params: { skip: number; take: number }) {
+    return prisma.tweet.findMany({
+      where: {
+        authorId: {
+          in: authorIds
+        }
+      },
+      ...feedTweets,
+      skip: params.skip,
+      take: params.take,
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+  }
+
+  /**
+   * Conta o total de tweets para um conjunto de autores, utilizado para calcular a paginação do feed.
+   * @param authorIds - Lista de IDs dos autores cujos tweets devem ser contados
+   * @returns Número total de tweets encontrados para os autores especificados
+   */
+  public async getTotalFeedTweets(authorIds: string[]) {
+    return prisma.tweet.count({
+      where: {
+        authorId: {
+          in: authorIds
+        }
+      }
     })
   }
 }
