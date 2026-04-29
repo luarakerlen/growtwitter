@@ -196,6 +196,33 @@ const doc = {
         },
       }
     },
+    Follow: {
+      type: 'object',
+      properties: {
+        followerId: {
+          type: 'string',
+          description: 'ID do usuário que está seguindo',
+          example: '72b29c86-3525-4ce3-84c0-c76243b090c3'
+        },
+        followingId: {
+          type: 'string',
+          description: 'ID do usuário que está sendo seguido',
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        },
+        createdAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Data e hora de criação da curtida',
+          example: '2024-06-01T12:00:00Z'
+        },
+        updatedAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Data e hora da última atualização da curtida',
+          example: '2024-06-02T15:30:00Z'
+        }
+      },
+    },
     Pagination: {
       type: 'object',
       properties: {
@@ -432,19 +459,7 @@ const doc = {
           success: { type: 'boolean', example: true },
           message: { type: 'string', example: 'Usuário seguido / deixado de seguir com sucesso.' },
           data: {
-            type: 'object',
-            properties: {
-              followerId: {
-                type: 'string',
-                description: 'ID do usuário que está seguindo',
-                example: '72b29c86-3525-4ce3-84c0-c76243b090c3'
-              },
-              followingId: {
-                type: 'string',
-                description: 'ID do usuário que está sendo seguido',
-                example: '123e4567-e89b-12d3-a456-426614174000'
-              }
-            }
+            $ref: '#/components/Follow'
           }
         }
       },
@@ -455,6 +470,16 @@ const doc = {
           message: { type: 'string', example: 'Tweet criado com sucesso!' },
           data: {
             $ref: '#/components/Tweet'
+          }
+        }
+      },
+      likeResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Tweet curtido com sucesso!' },
+          data: {
+            $ref: '#/components/Like'
           }
         }
       },

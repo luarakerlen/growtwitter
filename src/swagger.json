@@ -821,6 +821,148 @@
           }
         }
       }
+    },
+    "/tweets/{id}/like": {
+      "post": {
+        "tags": [
+          "Likes"
+        ],
+        "description": "Endpoint para curtir um tweet. O ID do tweet a ser curtido deve ser fornecido como parâmetro de caminho.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tweetId"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Tweet curtido com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/likeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, com detalhes dos erros de validação.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error400Response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado, token de autenticação ausente ou inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/Error401TokenAusenteResponse"
+                    },
+                    {
+                      "$ref": "#/components/Error401TokenInvalidoResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário não encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error404Response"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error500Response"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Likes"
+        ],
+        "description": "Endpoint para descurtir um tweet. O ID do tweet a ser descurtido deve ser fornecido como parâmetro de caminho.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tweetId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tweet descurtido com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/likeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida, com detalhes dos erros de validação.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error400Response"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado, token de autenticação ausente ou inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/Error401TokenAusenteResponse"
+                    },
+                    {
+                      "$ref": "#/components/Error401TokenInvalidoResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário não encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error404Response"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/Error500Response"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -970,6 +1112,33 @@
           "type": "string",
           "format": "date-time",
           "description": "Data e hora da última atualização do usuário",
+          "example": "2024-06-02T15:30:00Z"
+        }
+      }
+    },
+    "Follow": {
+      "type": "object",
+      "properties": {
+        "followerId": {
+          "type": "string",
+          "description": "ID do usuário que está seguindo",
+          "example": "72b29c86-3525-4ce3-84c0-c76243b090c3"
+        },
+        "followingId": {
+          "type": "string",
+          "description": "ID do usuário que está sendo seguido",
+          "example": "123e4567-e89b-12d3-a456-426614174000"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Data e hora de criação da curtida",
+          "example": "2024-06-01T12:00:00Z"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Data e hora da última atualização da curtida",
           "example": "2024-06-02T15:30:00Z"
         }
       }
@@ -1346,19 +1515,7 @@
             "example": "Usuário seguido / deixado de seguir com sucesso."
           },
           "data": {
-            "type": "object",
-            "properties": {
-              "followerId": {
-                "type": "string",
-                "description": "ID do usuário que está seguindo",
-                "example": "72b29c86-3525-4ce3-84c0-c76243b090c3"
-              },
-              "followingId": {
-                "type": "string",
-                "description": "ID do usuário que está sendo seguido",
-                "example": "123e4567-e89b-12d3-a456-426614174000"
-              }
-            }
+            "$ref": "#/components/Follow"
           }
         }
       },
@@ -1375,6 +1532,22 @@
           },
           "data": {
             "$ref": "#/components/Tweet"
+          }
+        }
+      },
+      "likeResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Tweet curtido com sucesso!"
+          },
+          "data": {
+            "$ref": "#/components/Like"
           }
         }
       },
