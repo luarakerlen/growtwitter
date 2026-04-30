@@ -30,8 +30,15 @@ export class TweetService {
    * @param data - Dados necessários para criar a resposta (conteúdo e autor)
    * @param parentId - ID do tweet ao qual a resposta está sendo feita
    * @returns Tweet criado como resposta ou um erro caso a criação falhe
+   * @throws HTTPError 404 se o tweet pai não for encontrado
    */
   public async replyTweet(data: CreateTweet, parentId: string) {
+    const parentTweet = await this.tweetRepository.getTweetById(parentId);
+
+    if (!parentTweet) {
+      throw new HTTPError(404, "Tweet pai não encontrado.");
+    }
+
     const createdTweet = await this.tweetRepository.createTweet({
       ...data,
       type: 'REPLY',
