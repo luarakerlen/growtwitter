@@ -1,11 +1,14 @@
+import { url } from 'inspector';
 import swaggerAutogen from 'swagger-autogen';
+import { envs } from './envs';
 
 const doc = {
   info: {
     title: 'API de Tweeter',
     "description": "API para gerenciar tweets. A API permite que um usuário cadastrado crie, leia, atualize e exclua tweets. Cada tweet possui um conteúdo, data de criação e informações do usuário que o criou. A API é protegida por autenticação JWT, garantindo que apenas usuários autorizados possam acessar e modificar seus tweets."
   },
-  schemes: ["http"],
+  host: envs.API_HOST || "http://localhost:3030",
+  schemes: ["https", "http"],
   securityDefinitions: {
     bearerAuth: {
       type: "http",
