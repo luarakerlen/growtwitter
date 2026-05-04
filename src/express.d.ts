@@ -1,14 +1,14 @@
-import { Request } from "express";
+// src/express.d.ts
 
-declare global {
-  namespace Express {
-    interface Request {
-      user: {
-        id: string;
-        name?: string;
-        username?: string;
-      };
-    }
+import "express";
+
+declare module "express-serve-static-core" {
+  interface Request {
+    user: {
+      id: string;
+      name?: string;
+      username?: string;
+    };
   }
 }
 
