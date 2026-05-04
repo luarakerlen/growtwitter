@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only --poll ./src/server.ts",
     "build": "tsc",
-    "start": "ts-node ./src/server.ts",
+    "start": "node dist/src/server.js",
     "swagger": "ts-node-dev ./src/swagger.ts",
     "postinstall": "npx prisma migrate deploy && npx prisma generate"
   },
