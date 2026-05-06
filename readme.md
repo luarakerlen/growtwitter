@@ -1,18 +1,18 @@
-# API de Todo List
+# GrowTwitter API
 
-API RESTful para gerenciamento de tarefas (todo list) desenvolvida em Node.js com Express, TypeScript, Prisma ORM e PostgreSQL.
+API RESTful de uma rede social estilo Twitter desenvolvida em Node.js com Express, TypeScript, Prisma ORM e PostgreSQL.
 
 ## Objetivo do Projeto
 
-Esta API permite que usuários cadastrados gerenciem suas tarefas pessoais, incluindo:
+O GrowTwitter permite que usuários se cadastrem, publiquem tweets, respondam a tweets, curtam publicações, sigam outros usuários e visualizem um feed personalizado. As funcionalidades incluem:
 
-- **Criar** tarefas com título, descrição e status
-- **Listar** tarefas com filtros e paginação
-- **Buscar** tarefas específicas
-- **Atualizar** tarefas existentes
-- **Remover** tarefas
-
-Cada usuário acessa apenas suas próprias tarefas, garantindo isolamento e segurança dos dados.
+- **Cadastro e autenticação** de usuários com JWT
+- **Publicação de tweets** (máximo 280 caracteres)
+- **Respostas a tweets** (replies encadeados)
+- **Curtidas** em tweets
+- **Seguir/deixar de seguir** usuários
+- **Feed personalizado** com tweets dos usuários seguidos (com paginação)
+- **Gerenciamento de perfil** (atualizar dados e deletar conta)
 
 ---
 
@@ -29,12 +29,63 @@ Cada usuário acessa apenas suas próprias tarefas, garantindo isolamento e segu
 | **bcrypt**               | Criptografia de senhas         |
 | **Docker**               | Containerização                |
 | **Swagger**              | Documentação da API            |
+| **express-validator**    | Validação de dados             |
+| **uuid**                 | Geração de identificadores únicos |
+
+---
+
+## Modelos de Dados
+
+### User
+
+| Campo       | Tipo      | Obrigatório | Descrição                       |
+| ----------- | --------- | ----------- | ------------------------------- |
+| `id`        | UUID      | Sim         | Identificador único             |
+| `name`      | String    | Sim         | Nome completo (máx 200 chars)   |
+| `username`  | String    | Sim         | Nome de usuário (único, máx 200)|
+| `email`     | String    | Sim         | Email (único, máx 200)          |
+| `password`  | String    | Sim         | Senha criptografada (máx 200)   |
+| `photoUrl`  | String?   | Não         | URL da foto de perfil (máx 500) |
+| `isActive`  | Boolean   | Sim         | Status do usuário (padrão: true)|
+| `createdAt` | DateTime  | Sim         | Data de criação                 |
+| `updatedAt` | DateTime  | Sim         | Data de atualização             |
+| `deletedAt` | DateTime? | Não         | Data de exclusão (soft delete)  |
+
+### Tweet
+
+| Campo       | Tipo      | Obrigatório | Descrição                        |
+| ----------- | --------- | ----------- | -------------------------------- |
+| `id`        | UUID      | Sim         | Identificador único              |
+| `content`   | String    | Sim         | Conteúdo do tweet (1-280 chars)  |
+| `type`      | Enum      | Sim         | `POST` ou `REPLY`                |
+| `authorId`  | UUID      | Sim         | ID do autor                      |
+| `parentId`  | UUID?     | Não         | ID do tweet pai (se for resposta)|
+| `createdAt` | DateTime  | Sim         | Data de criação                  |
+| `updatedAt` | DateTime  | Sim         | Data de atualização              |
+
+### Like
+
+| Campo       | Tipo      | Descrição                       |
+| ----------- | --------- | ------------------------------- |
+| `userId`    | UUID      | ID do usuário que curtiu        |
+| `tweetId`   | UUID      | ID do tweet curtido             |
+| `createdAt` | DateTime  | Data da curtida                 |
+| `updatedAt` | DateTime  | Data de atualização             |
+
+### Follow
+
+| Campo         | Tipo      | Descrição                       |
+| ------------- | --------- | ------------------------------- |
+| `followerId`  | UUID      | ID do seguidor                  |
+| `followingId` | UUID      | ID do usuário seguido           |
+| `createdAt`   | DateTime  | Data que começou a seguir       |
+| `updatedAt`   | DateTime  | Data de atualização             |
 
 ---
 
 ## Variáveis de Ambiente
 
-Crie um arquivo `.env` na raiz do projeto com base no `.env-example`:
+Crie um arquivo `.env` na raiz do projeto com base no `.env.example`:
 
 ```env
 # Porta do servidor
@@ -71,11 +122,11 @@ JWT_EXPIRES_IN="1h"
 
 ```bash
 # Clonar o repositório
-git clone https://github.com/luarakerlen/api-todo-list.git
-cd api-todo-list
+git clone https://github.com/luarakerlen/growtwitter.git
+cd growtwitter
 
 # Criar arquivo .env
-cp .env-example .env
+cp .env.example .env
 # Editar .env com suas configurações
 ```
 
@@ -125,39 +176,78 @@ npm run dev
 
 ## Rotas da Aplicação
 
-### Rotas Públicas
+### Health
 
-| Método | Rota          | Descrição                           |
-| ------ | ------------- | ----------------------------------- |
-| GET    | `/health`     | Verificar se a API está funcionando |
-| POST   | `/users`      | Criar novo usuário                  |
-| POST   | `/auth/login` | Autenticar usuário e obter token    |
+| Método | Rota      | Descrição                           |
+| ------ | --------- | ----------------------------------- |
+| GET    | `/health` | Verificar se a API está funcionando |
 
-### Rotas Protegidas (requerem token JWT)
+### Auth (Públicas)
 
-| Método | Rota         | Descrição                 |
-| ------ | ------------ | ------------------------- |
-| GET    | `/tasks`     | Listar tarefas do usuário |
-| POST   | `/tasks`     | Criar nova tarefa         |
-| GET    | `/tasks/:id` | Buscar tarefa por ID      |
-| PUT    | `/tasks/:id` | Atualizar tarefa          |
-| DELETE | `/tasks/:id` | Remover tarefa            |
+| Método | Rota          | Descrição                        |
+| ------ | ------------- | -------------------------------- |
+| POST   | `/auth/login` | Autenticar e obter token JWT     |
 
-#### End Points Disponíveis
+### Users
 
-![End Points da Api](./src/docs/api-end-points.png)
+| Método | Rota          | Descrição                      | Autenticação |
+| ------ | ------------- | ------------------------------ | ------------ |
+| POST   | `/users`      | Criar novo usuário             | Não          |
+| GET    | `/users/:id`  | Buscar usuário por ID          | Sim          |
+| PUT    | `/users/me`   | Atualizar dados do próprio usuário | Sim       |
+| DELETE | `/users/me`   | Deletar a própria conta        | Sim          |
 
-#### Diagrama UML
+### Tweets
 
-![Diagrama UML](./src/docs/uml.png)
+| Método | Rota                | Descrição                      | Autenticação |
+| ------ | ------------------- | ------------------------------ | ------------ |
+| POST   | `/tweets`           | Criar um novo tweet            | Sim          |
+| POST   | `/tweets/:id/reply` | Responder a um tweet           | Sim          |
+| GET    | `/tweets/:id`       | Buscar tweet por ID com respostas | Sim       |
+| DELETE | `/tweets/:id`       | Deletar um tweet próprio       | Sim          |
 
-#### Diagrama de Caso de Uso
+### Likes
 
-![Caso de Uso](./src/docs/user-case.png)
+| Método | Rota                | Descrição              | Autenticação |
+| ------ | ------------------- | ---------------------- | ------------ |
+| POST   | `/tweets/:id/like`  | Curtir um tweet        | Sim          |
+| DELETE | `/tweets/:id/like`  | Descurtir um tweet     | Sim          |
+
+### Follows
+
+| Método | Rota                  | Descrição                | Autenticação |
+| ------ | --------------------- | ------------------------ | ------------ |
+| POST   | `/users/:id/follow`   | Seguir um usuário        | Sim          |
+| DELETE | `/users/:id/follow`   | Deixar de seguir usuário | Sim          |
+
+### Feed
+
+| Método | Rota    | Descrição                          | Autenticação |
+| ------ | ------- | ---------------------------------- | ------------ |
+| GET    | `/feed` | Obter feed com paginação           | Sim          |
 
 ---
 
 ## Exemplos de Requisição e Resposta
+
+### Health Check
+
+**Requisição:**
+
+```bash
+GET /health
+```
+
+**Resposta (200):**
+
+```json
+{
+  "success": true,
+  "message": "A API está saudável."
+}
+```
+
+---
 
 ### Criar Usuário
 
@@ -169,8 +259,10 @@ Content-Type: application/json
 
 {
   "name": "João Silva",
+  "username": "joaosilva",
   "email": "joao@example.com",
-  "password": "senha123"
+  "password": "senha123",
+  "photoUrl": "https://example.com/foto.jpg"
 }
 ```
 
@@ -178,20 +270,36 @@ Content-Type: application/json
 
 ```json
 {
-	"success": true,
-	"message": "Usuário criado com sucesso.",
-	"data": {
-		"id": "123e4567-e89b-12d3-a456-426614174000",
-		"name": "João Silva",
-		"email": "joao@example.com",
-		"createdAt": "2024-06-01T12:00:00Z"
-	}
+  "success": true,
+  "message": "Usuário criado com sucesso!",
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "name": "João Silva",
+    "username": "joaosilva",
+    "email": "joao@example.com",
+    "photoUrl": "https://example.com/foto.jpg",
+    "isActive": true,
+    "createdAt": "2024-06-01T12:00:00Z",
+    "updatedAt": "2024-06-01T12:00:00Z"
+  }
 }
 ```
 
+**Regras de validação:**
+
+| Campo       | Regra                                      |
+| ----------- | ------------------------------------------ |
+| `name`      | Obrigatório, string, mínimo 1 caractere    |
+| `username`  | Obrigatório, string, mínimo 3 caracteres   |
+| `email`     | Obrigatório, formato email válido          |
+| `password`  | Obrigatório, string, mínimo 6 caracteres   |
+| `photoUrl`  | Opcional, formato URL válido               |
+
+---
+
 ### Login
 
-**Requisição:**
+**Requisição (com email):**
 
 ```bash
 POST /auth/login
@@ -203,32 +311,145 @@ Content-Type: application/json
 }
 ```
 
+**Requisição (com username):**
+
+```bash
+POST /auth/login
+Content-Type: application/json
+
+{
+  "username": "joaosilva",
+  "password": "senha123"
+}
+```
+
 **Resposta (200):**
 
 ```json
 {
-	"success": true,
-	"message": "Autenticação realizada com sucesso.",
-	"data": {
-		"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-		"user": { "id": "...", "name": "João Silva", "email": "joao@example.com" }
-	}
+  "success": true,
+  "message": "Login realizado com sucesso!",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": "123e4567-e89b-12d3-a456-426614174000",
+      "name": "João Silva",
+      "username": "joaosilva",
+      "email": "joao@example.com"
+    }
+  }
 }
 ```
 
-### Criar Tarefa (protegida)
+---
+
+### Buscar Usuário por ID (protegida)
 
 **Requisição:**
 
 ```bash
-POST /tasks
+GET /users/123e4567-e89b-12d3-a456-426614174000
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Resposta (200):**
+
+```json
+{
+  "success": true,
+  "message": "Usuário encontrado com sucesso!",
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "name": "João Silva",
+    "username": "joaosilva",
+    "email": "joao@example.com",
+    "photoUrl": "https://example.com/foto.jpg",
+    "isActive": true,
+    "createdAt": "2024-06-01T12:00:00Z",
+    "updatedAt": "2024-06-01T12:00:00Z",
+    "tweets": [],
+    "followers": []
+  }
+}
+```
+
+---
+
+### Atualizar Usuário (protegida)
+
+**Requisição:**
+
+```bash
+PUT /users/me
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 
 {
-  "title": "Comprar leite",
-  "description": "Ir ao supermercado",
-  "status": "pending"
+  "name": "João Silva Santos",
+  "photoUrl": "https://example.com/nova-foto.jpg"
+}
+```
+
+**Resposta (200):**
+
+```json
+{
+  "success": true,
+  "message": "Usuário atualizado com sucesso!",
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "name": "João Silva Santos",
+    "username": "joaosilva",
+    "email": "joao@example.com",
+    "photoUrl": "https://example.com/nova-foto.jpg",
+    "isActive": true,
+    "createdAt": "2024-06-01T12:00:00Z",
+    "updatedAt": "2024-06-01T13:00:00Z"
+  }
+}
+```
+
+Todos os campos são opcionais na atualização. Apenas os campos enviados serão atualizados.
+
+---
+
+### Deletar Usuário (protegida)
+
+**Requisição:**
+
+```bash
+DELETE /users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Resposta (200):**
+
+```json
+{
+  "success": true,
+  "message": "Usuário deletado com sucesso!",
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "name": "João Silva Santos",
+    "username": "joaosilva",
+    "email": "joao@example.com"
+  }
+}
+```
+
+---
+
+### Criar Tweet (protegida)
+
+**Requisição:**
+
+```bash
+POST /tweets
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+
+{
+  "content": "Olá, este é meu primeiro tweet no GrowTwitter!"
 }
 ```
 
@@ -236,24 +457,68 @@ Content-Type: application/json
 
 ```json
 {
-	"success": true,
-	"message": "Tarefa criada com sucesso.",
-	"data": {
-		"id": "123e4567-e89b-12d3-a456-426614174000",
-		"title": "Comprar leite",
-		"description": "Ir ao supermercado",
-		"status": "pending",
-		"createdAt": "2024-06-01T12:00:00Z"
-	}
+  "success": true,
+  "message": "Tweet criado com sucesso!",
+  "data": {
+    "id": "abc12345-e89b-12d3-a456-426614174000",
+    "content": "Olá, este é meu primeiro tweet no GrowTwitter!",
+    "type": "POST",
+    "authorId": "123e4567-e89b-12d3-a456-426614174000",
+    "parentId": null,
+    "createdAt": "2024-06-01T12:00:00Z",
+    "updatedAt": "2024-06-01T12:00:00Z"
+  }
 }
 ```
 
-### Listar Tarefas com Filtros (protegida)
+**Regras de validação:**
+
+| Campo     | Regra                                  |
+| --------- | -------------------------------------- |
+| `content` | Obrigatório, string, 1 a 280 caracteres|
+
+---
+
+### Responder Tweet (protegida)
 
 **Requisição:**
 
 ```bash
-GET /tasks?status=pending&page=1&pageSize=10
+POST /tweets/abc12345-e89b-12d3-a456-426614174000/reply
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+
+{
+  "content": "Concordo totalmente com esse tweet!"
+}
+```
+
+**Resposta (201):**
+
+```json
+{
+  "success": true,
+  "message": "Resposta ao tweet criada com sucesso!",
+  "data": {
+    "id": "def67890-e89b-12d3-a456-426614174000",
+    "content": "Concordo totalmente com esse tweet!",
+    "type": "REPLY",
+    "authorId": "123e4567-e89b-12d3-a456-426614174000",
+    "parentId": "abc12345-e89b-12d3-a456-426614174000",
+    "createdAt": "2024-06-01T12:05:00Z",
+    "updatedAt": "2024-06-01T12:05:00Z"
+  }
+}
+```
+
+---
+
+### Buscar Tweet por ID (protegida)
+
+**Requisição:**
+
+```bash
+GET /tweets/abc12345-e89b-12d3-a456-426614174000
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
@@ -261,19 +526,209 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ```json
 {
-	"success": true,
-	"message": "Tarefas listadas com sucesso.",
-	"data": {
-		"items": [{ "id": "...", "title": "Comprar leite", "status": "pending" }],
-		"pagination": {
-			"page": 1,
-			"pageSize": 10,
-			"total": 5,
-			"totalPages": 1
-		}
-	}
+  "success": true,
+  "message": "Tweet recuperado com sucesso!",
+  "data": {
+    "tweet": {
+      "id": "abc12345-e89b-12d3-a456-426614174000",
+      "content": "Olá, este é meu primeiro tweet no GrowTwitter!",
+      "type": "POST",
+      "author": {
+        "id": "123e4567-e89b-12d3-a456-426614174000",
+        "name": "João Silva",
+        "username": "joaosilva"
+      },
+      "createdAt": "2024-06-01T12:00:00Z"
+    },
+    "replies": [
+      {
+        "id": "def67890-e89b-12d3-a456-426614174000",
+        "content": "Concordo totalmente com esse tweet!",
+        "type": "REPLY",
+        "author": {
+          "id": "456e7890-e89b-12d3-a456-426614174000",
+          "name": "Maria Souza",
+          "username": "mariasouza"
+        },
+        "createdAt": "2024-06-01T12:05:00Z"
+      }
+    ]
+  }
 }
 ```
+
+---
+
+### Deletar Tweet (protegida)
+
+**Requisição:**
+
+```bash
+DELETE /tweets/abc12345-e89b-12d3-a456-426614174000
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Resposta (200):**
+
+```json
+{
+  "success": true,
+  "message": "Tweet deletado com sucesso!",
+  "data": {
+    "id": "abc12345-e89b-12d3-a456-426614174000",
+    "content": "Olá, este é meu primeiro tweet no GrowTwitter!",
+    "type": "POST"
+  }
+}
+```
+
+---
+
+### Curtir Tweet (protegida)
+
+**Requisição:**
+
+```bash
+POST /tweets/abc12345-e89b-12d3-a456-426614174000/like
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Resposta (201):**
+
+```json
+{
+  "success": true,
+  "message": "Tweet curtido com sucesso!",
+  "data": {
+    "userId": "123e4567-e89b-12d3-a456-426614174000",
+    "tweetId": "abc12345-e89b-12d3-a456-426614174000",
+    "createdAt": "2024-06-01T12:10:00Z",
+    "updatedAt": "2024-06-01T12:10:00Z"
+  }
+}
+```
+
+---
+
+### Descurtir Tweet (protegida)
+
+**Requisição:**
+
+```bash
+DELETE /tweets/abc12345-e89b-12d3-a456-426614174000/like
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Resposta (200):**
+
+```json
+{
+  "success": true,
+  "message": "Tweet descurtido com sucesso!",
+  "data": {
+    "userId": "123e4567-e89b-12d3-a456-426614174000",
+    "tweetId": "abc12345-e89b-12d3-a456-426614174000"
+  }
+}
+```
+
+---
+
+### Seguir Usuário (protegida)
+
+**Requisição:**
+
+```bash
+POST /users/456e7890-e89b-12d3-a456-426614174000/follow
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Resposta (201):**
+
+```json
+{
+  "success": true,
+  "message": "Usuário seguido com sucesso!",
+  "data": {
+    "followerId": "123e4567-e89b-12d3-a456-426614174000",
+    "followingId": "456e7890-e89b-12d3-a456-426614174000",
+    "createdAt": "2024-06-01T12:15:00Z",
+    "updatedAt": "2024-06-01T12:15:00Z"
+  }
+}
+```
+
+---
+
+### Deixar de Seguir Usuário (protegida)
+
+**Requisição:**
+
+```bash
+DELETE /users/456e7890-e89b-12d3-a456-426614174000/follow
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Resposta (200):**
+
+```json
+{
+  "success": true,
+  "message": "Usuário deixado de seguir com sucesso!",
+  "data": {
+    "followerId": "123e4567-e89b-12d3-a456-426614174000",
+    "followingId": "456e7890-e89b-12d3-a456-426614174000"
+  }
+}
+```
+
+---
+
+### Obter Feed (protegida)
+
+**Requisição:**
+
+```bash
+GET /feed?page=1&pageSize=10
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Resposta (200):**
+
+```json
+{
+  "success": true,
+  "message": "Feed do usuário recuperado com sucesso!",
+  "data": {
+    "tweets": [
+      {
+        "id": "abc12345-e89b-12d3-a456-426614174000",
+        "content": "Olá, este é meu primeiro tweet no GrowTwitter!",
+        "type": "POST",
+        "author": {
+          "id": "456e7890-e89b-12d3-a456-426614174000",
+          "name": "Maria Souza",
+          "username": "mariasouza"
+        },
+        "createdAt": "2024-06-01T12:00:00Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "pageSize": 10,
+      "total": 25,
+      "totalPages": 3
+    }
+  }
+}
+```
+
+**Parâmetros de query:**
+
+| Parâmetro  | Tipo   | Obrigatório | Descrição                          |
+| ---------- | ------ | ----------- | ---------------------------------- |
+| `page`     | Number | Não         | Número da página (padrão: 1)       |
+| `pageSize` | Number | Não         | Itens por página (padrão: definido pelo serviço) |
 
 ---
 
@@ -283,7 +738,7 @@ A API utiliza **JWT (JSON Web Token)** para autenticação stateless.
 
 ### Como Funciona
 
-1. **Login**: O usuário envia email e senha
+1. **Login**: O usuário envia email (ou username) e senha
 2. **Token**: Se as credenciais forem válidas, um token JWT é retornado
 3. **Requisições**: O token deve ser enviado no header das requisições protegidas
 
@@ -300,9 +755,9 @@ Header . Payload . Assinatura
 
 ```json
 {
-	"userId": "uuid-do-usuario",
-	"iat": 1234567890, // Issued At (timestamp de emissão)
-	"exp": 1234571490 // Expiration (timestamp de expiração)
+  "userId": "uuid-do-usuario",
+  "iat": 1234567890,
+  "exp": 1234571490
 }
 ```
 
@@ -331,9 +786,7 @@ Após expirar, o usuário deve fazer login novamente.
 
 ### Rotas Protegidas
 
-Todas as rotas de tarefas (`/tasks`, `/tasks/:id`) requerem autenticação.
-
-Rotas públicas: `/health`, `/users`, `/auth/login`
+Todas as rotas exceto `/health`, `/users` (POST) e `/auth/login` requerem autenticação.
 
 ### Boas Práticas
 
@@ -348,27 +801,46 @@ Rotas públicas: `/health`, `/users`, `/auth/login`
 
 ```
 ├── src/
-│   ├── controllers/     # Controladores da API
-│   ├── database/        # Repositories do banco de dados
-│   ├── docs/            # Imagens e utilitários
-│   ├── dtos/            # Data Transfer Objects
-│   ├── envs/            # Configurações de ambiente
-│   ├── middlewares/      # Middlewares (autenticação, validação)
-│   ├── models/          # Modelos de dados
-│   ├── routes/          # Definições de rotas
-│   ├── services/        # Lógica de negócio
-│   ├── shared/          # Arquivos compartilhados
-│   ├── utils/           # Utilitários
-│   ├── app.ts           # Configuração do Express
-│   └── server.ts       # Ponto de entrada
+│   ├── app.ts                # Configuração do Express
+│   ├── server.ts             # Ponto de entrada da aplicação
+│   ├── config/               # Configurações
+│   ├── container/            # Injeção de dependência
+│   ├── controllers/          # Controladores da API
+│   │   ├── feed.controller.ts
+│   │   ├── follow.controller.ts
+│   │   ├── like.controller.ts
+│   │   ├── tweet.controller.ts
+│   │   └── user.controller.ts
+│   ├── database/             # Repositories do banco de dados
+│   ├── dtos/                 # Data Transfer Objects
+│   ├── envs/                 # Configurações de ambiente
+│   ├── middlewares/          # Middlewares (autenticação, validação)
+│   ├── models/               # Modelos de dados
+│   ├── routes/               # Definições de rotas
+│   │   ├── auth.routes.ts
+│   │   ├── feed.routes.ts
+│   │   ├── follows.routes.ts
+│   │   ├── health.routes.ts
+│   │   ├── index.ts
+│   │   ├── likes.routes.ts
+│   │   ├── tweets.routes.ts
+│   │   └── users.routes.ts
+│   ├── services/             # Lógica de negócio
+│   ├── shared/               # Arquivos compartilhados
+│   ├── swagger.json          # Documentação Swagger gerada
+│   ├── swagger.ts            # Configuração do Swagger
+│   └── utils/                # Utilitários
 ├── prisma/
-│   ├── schema.prisma    # Esquema do banco
-│   └── migrations/     # Migrações Prisma
-├── .env                # Variáveis de ambiente
-├── .env-example        # Template de variáveis
-├── docker-compose.yml  # Serviços Docker
-├── package.json         # Dependências e scripts
-└── readme.md           # Este arquivo
+│   ├── schema.prisma         # Esquema do banco de dados
+│   └── migrations/           # Migrações do Prisma
+├── tests/                    # Testes automatizados
+├── .env                      # Variáveis de ambiente
+├── .env.example              # Template de variáveis
+├── docker-compose.yml        # Serviços Docker
+├── Dockerfile                # Configuração do container
+├── package.json              # Dependências e scripts
+├── tsconfig.json             # Configuração do TypeScript
+└── readme.md                 # Este arquivo
 ```
 
 ---
@@ -381,39 +853,55 @@ Após iniciar a API, acesse a documentação interativa:
 http://localhost:3030/docs
 ```
 
+A documentação Swagger inclui todos os endpoints, schemas de requisição/resposta e permite testar as rotas diretamente pelo navegador.
+
 ---
 
 ## Funcionalidades Implementadas
 
-### Obrigatórias
+### Core
 
-- [x] Cadastro de usuários
-- [x] Autenticação de usuários (JWT)
-- [x] Segurança no salvamento da senha (bcrypt)
-- [x] CRUD completo de tarefas
-- [x] Proteção de rotas
+- [x] Cadastro de usuários com validação
+- [x] Autenticação com JWT (email ou username)
+- [x] Criptografia de senhas com bcrypt
+- [x] CRUD completo de tweets
+- [x] Respostas a tweets (replies)
+- [x] Sistema de likes/curtidas
+- [x] Sistema de follows/seguidores
+- [x] Feed personalizado com paginação
+- [x] Proteção de rotas com middleware
 - [x] Isolamento de dados por usuário
+- [x] Atualização e deleção de conta própria
 
 ### Extras
 
-- [x] Paginação de tarefas
-- [x] Filtragem de tarefas por status
-- [x] Busca de tarefas por título
+- [x] Validação de dados com express-validator
+- [x] Documentação Swagger
 - [x] Docker para desenvolvimento
+- [x] Dependency Injection (Container)
+- [x] Repository Pattern
+- [x] Padronização de respostas HTTP
+- [x] Mensagens de erro em português
+- [x] TSDocs em controllers, routes e services
 - [ ] Testes automatizados
 - [ ] Refresh token
 - [ ] Deploy da API
 - [ ] Logs estruturados
 - [ ] Rate limiting
+- [ ] Upload de imagens
 
-### Decisões de projeto adotadas
+### Decisões de Projeto Adotadas
 
-- Documentação de rotas, controllers e services com TSDocs.
-- Documentação da API com Swagger.
-- Utilização de Docker.
-- Mensagens de erro em português.
-- Utilização do Repository Pattern.
-- Padronização de respostas HTTP através do HTTPResponse
+- Documentação de rotas, controllers e services com TSDocs
+- Documentação da API com Swagger (swagger-autogen)
+- Utilização de Docker para containerização
+- Mensagens de erro em português
+- Utilização do Repository Pattern
+- Padronização de respostas HTTP através do `HTTPResponse`
+- Injeção de dependência via container
+- Soft delete para usuários (campo `deletedAt`)
+- Cascade delete para tweets, likes e follows
+- Chave composta para Likes e Follows (evita duplicatas)
 
 ---
 
@@ -421,30 +909,51 @@ http://localhost:3030/docs
 
 ### Funcionais
 
-| ID   | Requisito                                            |
-| ---- | ---------------------------------------------------- |
-| RF01 | Cadastro de usuários                                 |
-| RF02 | Login de usuários                                    |
-| RF03 | Criar tarefa                                         |
-| RF04 | Listar tarefas                                       |
-| RF05 | Buscar tarefa por ID                                 |
-| RF06 | Atualizar tarefa                                     |
-| RF07 | Remover tarefa                                       |
-| RF08 | Isolar tarefas por usuário                           |
-| RF09 | Status da tarefa (pendente, em progresso, concluída) |
+| ID   | Requisito                                    |
+| ---- | -------------------------------------------- |
+| RF01 | Cadastro de usuários com validação           |
+| RF02 | Login com email ou username                  |
+| RF03 | Buscar usuário por ID                        |
+| RF04 | Atualizar dados do próprio usuário           |
+| RF05 | Deletar a própria conta                      |
+| RF06 | Criar tweet (máximo 280 caracteres)          |
+| RF07 | Responder a um tweet existente               |
+| RF08 | Buscar tweet por ID com suas respostas       |
+| RF09 | Deletar tweet próprio                        |
+| RF10 | Curtir um tweet                              |
+| RF11 | Descurtir um tweet                           |
+| RF12 | Seguir outro usuário                         |
+| RF13 | Deixar de seguir outro usuário               |
+| RF14 | Obter feed com paginação                     |
 
 ### Não Funcionais
 
-| ID    | Requisito                   |
-| ----- | --------------------------- |
-| RNF01 | Autenticação JWT            |
-| RNF02 | Rotas protegidas            |
-| RNF03 | Senhas criptografadas       |
-| RNF04 | Email único                 |
-| RNF05 | Validação de campos         |
-| RNF06 | Tratamento de erros         |
-| RNF07 | Documentação Swagger        |
-| RNF08 | Uso correto de códigos HTTP |
+| ID    | Requisito                           |
+| ----- | ----------------------------------- |
+| RNF01 | Autenticação JWT                    |
+| RNF02 | Rotas protegidas                    |
+| RNF03 | Senhas criptografadas com bcrypt    |
+| RNF04 | Email único                         |
+| RNF05 | Username único                      |
+| RNF06 | Validação de campos                 |
+| RNF07 | Tratamento de erros                 |
+| RNF08 | Documentação Swagger                |
+| RNF09 | Uso correto de códigos HTTP         |
+| RNF10 | Containerização com Docker          |
+| RNF11 | Injeção de dependência              |
+
+---
+
+## Códigos de Erro
+
+| Código | Descrição                                |
+| ------ | ---------------------------------------- |
+| 400    | Requisição inválida (erros de validação) |
+| 401    | Não autorizado (token ausente/inválido)  |
+| 401    | Credenciais inválidas                    |
+| 404    | Recurso não encontrado                   |
+| 409    | Conflito (email/username já existe)      |
+| 500    | Erro interno do servidor                 |
 
 ---
 
